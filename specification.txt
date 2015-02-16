@@ -1,0 +1,4 @@
+# Goal
+Create a moisture sensor to be used in a large industrial sensor deployment application.
+Sensor has to communicate via RS-485 transport layer. 
+Sensor has to provide soil moisture and temperature measurements.
