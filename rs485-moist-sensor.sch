@@ -35,11 +35,11 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
-Date ""
+Title "Digital soil moisture sensor"
+Date "Tue 17 Feb 2015"
 Rev ""
-Comp ""
-Comment1 ""
+Comp "Catnip electronics"
+Comment1 "by Albertas Mickėnas mic@wemakethings.net"
 Comment2 ""
 Comment3 ""
 Comment4 ""
@@ -160,7 +160,7 @@ U 1 1 54D2209D
 P 8250 3050
 F 0 "R4" V 8330 3050 50  0000 C CNN
 F 1 "R" V 8257 3051 50  0000 C CNN
-F 2 "SMD_Packages:SMD-0603_r" V 8180 3050 30  0001 C CNN
+F 2 "Resistors_SMD:R_0603" V 8180 3050 30  0001 C CNN
 F 3 "" H 8250 3050 30  0000 C CNN
 	1    8250 3050
 	0    1    1    0   
@@ -182,7 +182,7 @@ U 1 1 54D22174
 P 9300 2100
 F 0 "R5" V 9380 2100 50  0000 C CNN
 F 1 "1M" V 9307 2101 50  0000 C CNN
-F 2 "SMD_Packages:SMD-0603_r" V 9230 2100 30  0001 C CNN
+F 2 "Resistors_SMD:R_0603" V 9230 2100 30  0001 C CNN
 F 3 "" H 9300 2100 30  0000 C CNN
 	1    9300 2100
 	-1   0    0    1   
@@ -193,7 +193,7 @@ U 1 1 54D221C8
 P 9600 4050
 F 0 "R8" V 9680 4050 50  0000 C CNN
 F 1 "1M" V 9607 4051 50  0000 C CNN
-F 2 "SMD_Packages:SMD-0603_r" V 9530 4050 30  0001 C CNN
+F 2 "Resistors_SMD:R_0603" V 9530 4050 30  0001 C CNN
 F 3 "" H 9600 4050 30  0000 C CNN
 	1    9600 4050
 	-1   0    0    1   
@@ -237,7 +237,7 @@ U 1 1 54D222F8
 P 9600 2600
 F 0 "R7" V 9680 2600 50  0000 C CNN
 F 1 "1M" V 9607 2601 50  0000 C CNN
-F 2 "SMD_Packages:SMD-0603_r" V 9530 2600 30  0001 C CNN
+F 2 "Resistors_SMD:R_0603" V 9530 2600 30  0001 C CNN
 F 3 "" H 9600 2600 30  0000 C CNN
 	1    9600 2600
 	-1   0    0    1   
@@ -261,7 +261,7 @@ U 1 1 54D2252C
 P 9300 3550
 F 0 "R6" V 9380 3550 50  0000 C CNN
 F 1 "1M" V 9307 3551 50  0000 C CNN
-F 2 "SMD_Packages:SMD-0603_r" V 9230 3550 30  0001 C CNN
+F 2 "Resistors_SMD:R_0603" V 9230 3550 30  0001 C CNN
 F 3 "" H 9300 3550 30  0000 C CNN
 	1    9300 3550
 	-1   0    0    1   
@@ -364,7 +364,7 @@ U 1 1 54DF19BF
 P 4650 2900
 F 0 "R1" V 4730 2900 50  0000 C CNN
 F 1 "10k" V 4657 2901 50  0000 C CNN
-F 2 "SMD_Packages:SMD-0603_r" V 4580 2900 30  0001 C CNN
+F 2 "Resistors_SMD:R_0603" V 4580 2900 30  0001 C CNN
 F 3 "" H 4650 2900 30  0000 C CNN
 	1    4650 2900
 	0    -1   -1   0   
@@ -417,14 +417,14 @@ SENSE_HIGH/MOSI
 Text Label 4550 2400 2    60   ~ 0
 SENSE_LOW
 Text Notes 2450 4900 0    60   ~ 0
-Gerai patikrink kojas datasheete:\n* kur yra programavimo pinai ir kur spi\n* ar geras pinas EXCITATION signalui?\n* ar yra kokių skirtumų tarp USART1 ir USART2?\n\nBe to:\n* ar lengva rasti 20MHz kristalų?\n* ar darom temperatūros sensorius?
+Gerai patikrink kojas datasheete:\n* ar geras pinas EXCITATION signalui?\n* ar yra kokių skirtumų tarp USART1 ir USART2?\n
 $Comp
 L THERMISTOR TH1
 U 1 1 54E05F89
 P 7250 4550
 F 0 "TH1" V 7350 4600 50  0000 C CNN
 F 1 "THERMISTOR" V 7150 4550 50  0000 C BNN
-F 2 "SMD_Packages:SMD-0603_r" H 7250 4550 60  0001 C CNN
+F 2 "Resistors_SMD:R_0603" H 7250 4550 60  0001 C CNN
 F 3 "" H 7250 4550 60  0000 C CNN
 	1    7250 4550
 	1    0    0    -1  
@@ -435,7 +435,7 @@ U 1 1 54E06028
 P 7250 4050
 F 0 "R2" V 7330 4050 50  0000 C CNN
 F 1 "10k 0.1%" V 7257 4051 50  0000 C CNN
-F 2 "SMD_Packages:SMD-0603_r" V 7180 4050 30  0001 C CNN
+F 2 "Resistors_SMD:R_0603" V 7180 4050 30  0001 C CNN
 F 3 "" H 7250 4050 30  0000 C CNN
 	1    7250 4050
 	1    0    0    -1  
@@ -483,7 +483,7 @@ U 1 1 54E06FCA
 P 5550 2300
 F 0 "R9" V 5630 2300 50  0000 C CNN
 F 1 "1k" V 5557 2301 50  0000 C CNN
-F 2 "SMD_Packages:SMD-0603_r" V 5480 2300 30  0001 C CNN
+F 2 "Resistors_SMD:R_0603" V 5480 2300 30  0001 C CNN
 F 3 "" H 5550 2300 30  0000 C CNN
 	1    5550 2300
 	0    -1   -1   0   
@@ -509,7 +509,7 @@ U 1 1 54E0768F
 P 7450 1900
 F 0 "R10" V 7530 1900 50  0000 C CNN
 F 1 "120" V 7457 1901 50  0000 C CNN
-F 2 "SMD_Packages:SMD-0603_r" V 7380 1900 30  0001 C CNN
+F 2 "Resistors_SMD:R_0603" V 7380 1900 30  0001 C CNN
 F 3 "" H 7450 1900 30  0000 C CNN
 	1    7450 1900
 	0    1    1    0   
