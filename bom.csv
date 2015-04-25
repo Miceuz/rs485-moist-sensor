@@ -1,0 +1,19 @@
+Id,Designator,Package,Quantity,Designation,Supplier and ref,Available
+1,P1,Pin_Header_Straight_2x03,1,CONN_02X03,,x
+2,"D1,D2",SOD-523,2,BAT54,,x
+3,IC1,QFN-20-1EP_4x4mm_Pitch0.5mm,1,ATTINY441-MU,,x
+4,U1,SOIC-8_3.9x4.9mm_Pitch1.27mm,1,SP3481EN,,
+5,X1,Crystal_HC49-SD_SMD,1,16MHz,,x
+6,D3,LED-0603,1,LED,,x
+7,P2,Pin_Header_Straight_1x04,1,CONN_01X04,,x
+8,"C1,C2",C_0603,2,18p,,x
+9,JP1,SMD-0603_r,1,JUMPER,,x
+10,"C3,C6,C7",C_0603,3,1u,,x
+11,"C4,C5",C_0603,2,1n,,x
+12,R1,R_0603,1,10k,,x
+13,R2,R_0603,1,10k 0.1%,,x
+14,"R4,R9",R_0603,2,330,,x
+15,"R5,R6,R7,R8",R_0603,4,1M,,x
+16,R10,R_0603,1,120,,x
+17,TH1,R_0603,1,THERMISTOR,,x
+18,"REF**,REF**",MountingHole_3mm,2,MountingHole_3mm,,x
