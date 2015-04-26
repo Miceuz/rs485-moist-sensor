@@ -1,8 +1,8 @@
 (export (version D)
   (design
     (source /home/miceuz/Xaltura/rs485-moist-sensor/rs485-moist-sensor.sch)
-    (date "Fri 27 Mar 2015 12:09:33 PM EET")
-    (tool "Eeschema (2015-03-21 BZR 5528)-product")
+    (date "Sun 26 Apr 2015 10:09:05 AM EEST")
+    (tool "Eeschema (2015-04-12 BZR 5595)-product")
     (sheet (number 1) (name /) (tstamps /)
       (title_block
         (title "Digital soil moisture sensor")
@@ -124,7 +124,7 @@
       (sheetpath (names /) (tstamps /))
       (tstamp 54DF1D15))
     (comp (ref TH1)
-      (value THERMISTOR)
+      (value NCP18XH103F03RB)
       (footprint Resistors_SMD:R_0603)
       (libsource (lib device) (part THERMISTOR))
       (sheetpath (names /) (tstamps /))
@@ -172,14 +172,17 @@
       (sheetpath (names /) (tstamps /))
       (tstamp 54E1FE0E)))
   (libparts
-    (libpart (lib device) (part R)
-      (description Resistor)
+    (libpart (lib device) (part C)
+      (description "Unpolarized capacitor")
       (footprints
-        (fp R_*)
-        (fp Resistor_*))
+        (fp C?)
+        (fp C_????_*)
+        (fp C_????)
+        (fp SMD*_c)
+        (fp Capacitor*))
       (fields
-        (field (name Reference) R)
-        (field (name Value) R))
+        (field (name Reference) C)
+        (field (name Value) C))
       (pins
         (pin (num 1) (name ~) (type passive))
         (pin (num 2) (name ~) (type passive))))
@@ -205,6 +208,43 @@
       (pins
         (pin (num 1) (name A) (type passive))
         (pin (num 2) (name K) (type passive))))
+    (libpart (lib device) (part R)
+      (description Resistor)
+      (footprints
+        (fp R_*)
+        (fp Resistor_*))
+      (fields
+        (field (name Reference) R)
+        (field (name Value) R))
+      (pins
+        (pin (num 1) (name ~) (type passive))
+        (pin (num 2) (name ~) (type passive))))
+    (libpart (lib device) (part THERMISTOR)
+      (description Resistance)
+      (footprints
+        (fp R?)
+        (fp SM0603)
+        (fp SM0805))
+      (fields
+        (field (name Reference) TH)
+        (field (name Value) THERMISTOR))
+      (pins
+        (pin (num 1) (name ~) (type passive))
+        (pin (num 2) (name ~) (type passive))))
+    (libpart (lib conn) (part CONN_01X04)
+      (footprints
+        (fp Pin_Header_Straight_1X04)
+        (fp Pin_Header_Angled_1X04)
+        (fp Socket_Strip_Straight_1X04)
+        (fp Socket_Strip_Angled_1X04))
+      (fields
+        (field (name Reference) P)
+        (field (name Value) CONN_01X04))
+      (pins
+        (pin (num 1) (name P1) (type passive))
+        (pin (num 2) (name P2) (type passive))
+        (pin (num 3) (name P3) (type passive))
+        (pin (num 4) (name P4) (type passive))))
     (libpart (lib conn) (part CONN_02X03)
       (footprints
         (fp Pin_Header_Straight_2X03)
@@ -265,20 +305,6 @@
       (pins
         (pin (num 1) (name A) (type passive))
         (pin (num 2) (name K) (type passive))))
-    (libpart (lib conn) (part CONN_01X04)
-      (footprints
-        (fp Pin_Header_Straight_1X04)
-        (fp Pin_Header_Angled_1X04)
-        (fp Socket_Strip_Straight_1X04)
-        (fp Socket_Strip_Angled_1X04))
-      (fields
-        (field (name Reference) P)
-        (field (name Value) CONN_01X04))
-      (pins
-        (pin (num 1) (name P1) (type passive))
-        (pin (num 2) (name P2) (type passive))
-        (pin (num 3) (name P3) (type passive))
-        (pin (num 4) (name P4) (type passive))))
     (libpart (lib interface) (part SP3481CN)
       (aliases
         (alias SP3481EN)
@@ -300,44 +326,18 @@
         (pin (num 5) (name GND) (type power_in))
         (pin (num 6) (name A) (type BiDi))
         (pin (num 7) (name B) (type BiDi))
-        (pin (num 8) (name VCC) (type power_in))))
-    (libpart (lib device) (part THERMISTOR)
-      (description Resistance)
-      (footprints
-        (fp R?)
-        (fp SM0603)
-        (fp SM0805))
-      (fields
-        (field (name Reference) TH)
-        (field (name Value) THERMISTOR))
-      (pins
-        (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive))))
-    (libpart (lib device) (part C)
-      (description "Unpolarized capacitor")
-      (footprints
-        (fp C?)
-        (fp C_????_*)
-        (fp C_????)
-        (fp SMD*_c)
-        (fp Capacitor*))
-      (fields
-        (field (name Reference) C)
-        (field (name Value) C))
-      (pins
-        (pin (num 1) (name ~) (type passive))
-        (pin (num 2) (name ~) (type passive)))))
+        (pin (num 8) (name VCC) (type power_in)))))
   (libraries
     (library (logical device)
       (uri /usr/local/share/kicad/library/device.lib))
+    (library (logical conn)
+      (uri /usr/local/share/kicad/library/conn.lib))
+    (library (logical interface)
+      (uri /usr/local/share/kicad/library/interface.lib))
     (library (logical atmel)
       (uri /usr/local/share/kicad/library/atmel.lib))
     (library (logical rs485-moist-sensor-cache)
-      (uri /home/miceuz/Xaltura/rs485-moist-sensor/rs485-moist-sensor-cache.lib))
-    (library (logical interface)
-      (uri /usr/local/share/kicad/library/interface.lib))
-    (library (logical conn)
-      (uri /usr/local/share/kicad/library/conn.lib)))
+      (uri /home/miceuz/Xaltura/rs485-moist-sensor/rs485-moist-sensor-cache.lib)))
   (nets
     (net (code 1) (name /SENSOR_TRACK)
       (node (ref D1) (pin 2))
@@ -425,12 +425,12 @@
       (node (ref P1) (pin 5))
       (node (ref R1) (pin 1)))
     (net (code 17) (name "Net-(IC1-Pad3)")
-      (node (ref U1) (pin 2))
+      (node (ref U1) (pin 1))
       (node (ref IC1) (pin 3)))
     (net (code 18) (name "Net-(IC1-Pad4)")
-      (node (ref IC1) (pin 4))
-      (node (ref U1) (pin 1)))
+      (node (ref U1) (pin 4))
+      (node (ref IC1) (pin 4)))
     (net (code 19) (name "Net-(IC1-Pad5)")
       (node (ref U1) (pin 3))
-      (node (ref U1) (pin 4))
+      (node (ref U1) (pin 2))
       (node (ref IC1) (pin 5)))))

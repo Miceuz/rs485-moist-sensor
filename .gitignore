@@ -6,3 +6,4 @@ $*
 *.i
 *.hex
 *.elf
+a.out
