@@ -95,7 +95,7 @@ int main (void) {
         uint16_t caph = adcReadChannel(CHANNEL_CAPACITANCE_HIGH);
         uint16_t capl = adcReadChannel(CHANNEL_CAPACITANCE_LOW);
 
-        fputs("Capacitance = ", stdout);
+        fputs(" Capacitance = ", stdout);
         itoa(caph, buff, 10);
         fputs(buff, stdout);
         fputs(" - ", stdout);

@@ -20,7 +20,7 @@ LDFLAGS += -Wl,--gc-sections,--relax
 
 OBJECTS = main.o thermistor.o
 
-COMPILE = avr-gcc -DF_CPU=$(F_CPU) $(CFLAGS) $(LDFLAGS) -mmcu=$(DEVICE)  
+COMPILE = avr-gcc-4.9.2 -DF_CPU=$(F_CPU) $(CFLAGS) $(LDFLAGS) -mmcu=$(DEVICE)  
 
 # symbolic targets:
 help:
@@ -71,7 +71,7 @@ clean:
 # Since we don't want to ship the driver multipe times, we copy it into this project:
 
 main.elf: $(OBJECTS)	# usbdrv dependency only needed because we copy it
-	$(COMPILE) -o main.elf $(OBJECTS)
+	$(COMPILE) -L /usr/lib/avr/lib/ldscripts/ -o main.elf $(OBJECTS)
 
 main.hex: main.elf
 	rm -f main.hex main.eep.hex

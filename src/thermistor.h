@@ -3,6 +3,6 @@
 /**
  * Returns temperature as a function of 10bit ADC value
  **/
-long thermistorLsbToTemperature(unsigned long lsb);
+long thermistorLsbToTemperature(unsigned int lsb);
 
 #endif
