@@ -1,4 +1,5 @@
 EESchema Schematic File Version 2
+LIBS:rs485-moist-sensor-rescue
 LIBS:power
 LIBS:device
 LIBS:transistors
@@ -271,7 +272,7 @@ F 3 "" H 5200 7200 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L SP3481EN U1
+L SP3481EN-RESCUE-rs485-moist-sensor U1
 U 1 1 54DF0ADA
 P 5750 3600
 F 0 "U1" H 5450 3950 50  0000 L CNN
@@ -671,7 +672,7 @@ F 3 "" H 1350 3700 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Q_PMOS_GSD Q1
+L Q_PMOS_GSD-RESCUE-rs485-moist-sensor Q1
 U 1 1 5894816E
 P 2450 1450
 F 0 "Q1" V 2778 1450 50  0000 C CNN
@@ -780,4 +781,10 @@ F 3 "" H 1450 1000 60  0000 C CNN
 	1    1450 1000
 	1    0    0    -1  
 $EndComp
+Text Label 3900 3400 2    60   ~ 0
+TX
+Text Label 3900 3500 2    60   ~ 0
+RX
+Text Label 3900 3300 2    60   ~ 0
+RS485_FLOW_CTRL
 $EndSCHEMATC

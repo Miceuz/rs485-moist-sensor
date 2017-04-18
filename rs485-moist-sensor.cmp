@@ -1,0 +1,185 @@
+Cmp-Mod V01 Created by Cvpcb (2015-02-15 BZR 5420)-product   date = Mon 16 Feb 2015 11:39:17 PM EET
+
+BeginCmp
+TimeStamp = /54D21881;
+Reference = C1;
+ValeurCmp = 18p;
+IdModule  = Capacitors_SMD:C_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D218DE;
+Reference = C2;
+ValeurCmp = 18p;
+IdModule  = Capacitors_SMD:C_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D21E5C;
+Reference = C3;
+ValeurCmp = 1u;
+IdModule  = Capacitors_SMD:C_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D2222A;
+Reference = C4;
+ValeurCmp = 1n;
+IdModule  = Capacitors_SMD:C_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D22484;
+Reference = C5;
+ValeurCmp = 1n;
+IdModule  = Capacitors_SMD:C_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54DF1D15;
+Reference = C6;
+ValeurCmp = 1u;
+IdModule  = Capacitors_SMD:C_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54DF0C76;
+Reference = C7;
+ValeurCmp = 1u;
+IdModule  = Capacitors_SMD:C_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D21FCD;
+Reference = D1;
+ValeurCmp = DIODESCH;
+IdModule  = SMD_Packages:SOD-523;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D22068;
+Reference = D2;
+ValeurCmp = DIODESCH;
+IdModule  = SMD_Packages:SOD-523;
+EndCmp
+
+BeginCmp
+TimeStamp = /54E06E01;
+Reference = D3;
+ValeurCmp = LED;
+IdModule  = LEDs:LED-0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54DF0163;
+Reference = IC1;
+ValeurCmp = ATTINY441-MU;
+IdModule  = Housings_DFN_QFN:QFN-20-1EP_4x4mm_Pitch0.5mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /54E0770D;
+Reference = JP1;
+ValeurCmp = JUMPER;
+IdModule  = SMD_Packages:SMD-0603_r;
+EndCmp
+
+BeginCmp
+TimeStamp = /54E0D5F3;
+Reference = P1;
+ValeurCmp = CONN_02X03;
+IdModule  = Pin_Headers:Pin_Header_Straight_2x03;
+EndCmp
+
+BeginCmp
+TimeStamp = /54E1FE0E;
+Reference = P2;
+ValeurCmp = CONN_01X04;
+IdModule  = Pin_Headers:Pin_Header_Straight_1x04;
+EndCmp
+
+BeginCmp
+TimeStamp = /54DF19BF;
+Reference = R1;
+ValeurCmp = 10k;
+IdModule  = Resistors_SMD:R_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54E06028;
+Reference = R2;
+ValeurCmp = 10k 0.1%;
+IdModule  = Resistors_SMD:R_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D2209D;
+Reference = R4;
+ValeurCmp = R;
+IdModule  = Resistors_SMD:R_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D22174;
+Reference = R5;
+ValeurCmp = 1M;
+IdModule  = Resistors_SMD:R_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D2252C;
+Reference = R6;
+ValeurCmp = 1M;
+IdModule  = Resistors_SMD:R_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D222F8;
+Reference = R7;
+ValeurCmp = 1M;
+IdModule  = Resistors_SMD:R_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D221C8;
+Reference = R8;
+ValeurCmp = 1M;
+IdModule  = Resistors_SMD:R_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54E06FCA;
+Reference = R9;
+ValeurCmp = 1k;
+IdModule  = Resistors_SMD:R_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54E0768F;
+Reference = R10;
+ValeurCmp = 120;
+IdModule  = Resistors_SMD:R_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54E05F89;
+Reference = TH1;
+ValeurCmp = THERMISTOR;
+IdModule  = Resistors_SMD:R_0603;
+EndCmp
+
+BeginCmp
+TimeStamp = /54DF0ADA;
+Reference = U1;
+ValeurCmp = SP3481EN;
+IdModule  = Housings_SOIC:SOIC-8_3.9x4.9mm_Pitch1.27mm;
+EndCmp
+
+BeginCmp
+TimeStamp = /54D213EA;
+Reference = X1;
+ValeurCmp = 16MHz;
+IdModule  = Crystals:Crystal_HC49-SD_SMD;
+EndCmp
+
+EndListe
