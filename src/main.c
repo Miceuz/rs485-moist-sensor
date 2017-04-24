@@ -5,20 +5,6 @@
 #include "thermistor.h"
 
 
-
-
-inline static void ledOn() {
-    PORTA |= _BV(PA5);
-}
-
-inline static void ledOff() {
-    PORTA &= ~_BV(PA5);
-};
-
-inline static void ledSetup(){
-    DDRA |= _BV(PA5);
-}
-
 #define DRIVER_ENABLE PA0
 
 inline static void serialSetup() {
@@ -55,7 +41,7 @@ static inline void adcSetup() {
 }
 
 #define CHANNEL_THERMISTOR 3
-#define CHANNEL_CAPACITANCE_HIGH 6
+#define CHANNEL_CAPACITANCE_HIGH 5
 #define CHANNEL_CAPACITANCE_LOW 7
 #define CHANNEL_CHIP_TEMP 0b00001100
 
@@ -70,7 +56,6 @@ uint16_t adcReadChannel(uint8_t channel) {
 char buff[10];
 
 int main (void) {
-    ledSetup();
     stdout = &uart_output;
     serialSetup();
     serialDriverEnable();
@@ -78,7 +63,6 @@ int main (void) {
     adcSetup();    
     
     while(1) {
-        ledOn();
         _delay_ms(100);
         uint16_t thermistor = adcReadChannel(CHANNEL_THERMISTOR);
 
@@ -113,7 +97,6 @@ int main (void) {
         fputs(buff, stdout);
         puts(".");
 
-        ledOff();
         _delay_ms(100);
     }
 }
