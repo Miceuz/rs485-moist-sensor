@@ -11,7 +11,7 @@ DEVICE  = attiny441
 F_CPU   = 16000000	# in Hz
 FUSE_L  = 0xAE# see below for fuse values for particular devices
 FUSE_H  = 0xDF
-FUSE_E  = 0xFF
+FUSE_E  = 0xED
 AVRDUDE = avrdude -c usbasp -P usb -p $(DEVICE) -e # edit this line for your programmer
 
 CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=0  -Os 
@@ -39,7 +39,7 @@ program: flash fuse
 fuse:
 	@[ "$(FUSE_H)" != "" -a "$(FUSE_L)" != "" ] || \
 		{ echo "*** Edit Makefile and choose values for FUSE_L and FUSE_H!"; exit 1; }
-	$(AVRDUDE) -U hfuse:w:$(FUSE_H):m -U lfuse:w:$(FUSE_L):m efuse:w:$(FUSE_E):m -B 20.96
+	$(AVRDUDE) -U hfuse:w:$(FUSE_H):m -U lfuse:w:$(FUSE_L):m -U efuse:w:$(FUSE_E):m -B 20.96
 
 # rule for uploading firmware:
 flash: main.hex
