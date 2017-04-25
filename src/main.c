@@ -2,15 +2,25 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdio.h>
+#include <avr/sleep.h>
 #include "thermistor.h"
 
 
-#define DRIVER_ENABLE PA0
+#define DRIVER_ENABLE PA4
+#define READER_ENABLE PA0
+
+#define CHANNEL_THERMISTOR 3
+#define CHANNEL_CAPACITANCE_HIGH 5
+#define CHANNEL_CAPACITANCE_LOW 7
+#define CHANNEL_CHIP_TEMP 0b00001100
+
+#define POWER_TO_DIVIDERS PA6
 
 inline static void serialSetup() {
     #define BAUD 9600
     #include <util/setbaud.h>
     DDRA |= _BV(DRIVER_ENABLE);
+    DDRA |= _BV(READER_ENABLE);
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
     UCSR0B = _BV(RXEN0) | _BV(TXEN0);
@@ -25,6 +35,14 @@ inline static void serialDriverDisable() {
     PORTA &= ~_BV(DRIVER_ENABLE);
 }
 
+inline static void serialReaderEnable() {
+    PORTA &= ~_BV(READER_ENABLE);
+}
+
+inline static void serialReaderDisable() {
+    PORTA |= _BV(READER_ENABLE);
+}
+
 void uart_putchar(char c, FILE *stream) {
     if (c == '\n') {
         uart_putchar('\r', stream);
@@ -35,15 +53,21 @@ void uart_putchar(char c, FILE *stream) {
 
 FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
 
-static inline void adcSetup() {
-    ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS0);
-    ADMUXB = 0;
+void powerToDividersEnable() {
+    PORTA |= _BV(POWER_TO_DIVIDERS);
 }
 
-#define CHANNEL_THERMISTOR 3
-#define CHANNEL_CAPACITANCE_HIGH 5
-#define CHANNEL_CAPACITANCE_LOW 7
-#define CHANNEL_CHIP_TEMP 0b00001100
+void powerToDividersDisable() {
+    PORTA &= ~_BV(POWER_TO_DIVIDERS);
+}
+
+static inline void adcSetup() {
+    DDRA |= _BV(POWER_TO_DIVIDERS);
+
+    ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS0);
+    ADMUXB = 0;
+    DIDR0 |= _BV(ADC7D) | _BV(ADC5D) | _BV(ADC3D);// | _BV(ADC0D) | _BV(ADC1D) | _BV(ADC2D) | _BV(ADC4D) | _BV(ADC6D) | _BV(ADC8D);
+}
 
 uint16_t adcReadChannel(uint8_t channel) {
     ADMUXA = channel;
@@ -53,17 +77,50 @@ uint16_t adcReadChannel(uint8_t channel) {
     return ret;
 }
 
+uint8_t temp = 0;
+
+void sleep() {
+    CCP = 0xD8;
+    CLKCR = 0b01001110;
+
+    PORTA = 0;
+
+    DDRB |= _BV(PB2);
+    PORTB &= ~_BV(PB2);
+
+    serialDriverDisable();
+    serialReaderEnable();
+    UCSR0B &= ~_BV(TXEN0);
+
+    ADCSRA &= ~_BV(ADEN);
+
+    ACSR0A = _BV(ACD0); //disable comparators
+    ACSR1A = _BV(ACD1);
+    
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    sleep_mode();
+}
+
+
+
 char buff[10];
 
 int main (void) {
+
     stdout = &uart_output;
     serialSetup();
+    
     serialDriverEnable();
+    serialReaderDisable();
 
     adcSetup();    
+
+   sleep();
     
     while(1) {
         _delay_ms(100);
+        powerToDividersEnable();
+        _delay_ms(2);
         uint16_t thermistor = adcReadChannel(CHANNEL_THERMISTOR);
 
         fputs("Thermistor = ", stdout);
@@ -96,6 +153,7 @@ int main (void) {
         itoa(chipTemp, buff, 10);
         fputs(buff, stdout);
         puts(".");
+        powerToDividersDisable();
 
         _delay_ms(100);
     }
