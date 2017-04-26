@@ -80,8 +80,9 @@ uint16_t adcReadChannel(uint8_t channel) {
 uint8_t temp = 0;
 
 void sleep() {
+    temp = CLKCR | _BV(CKOUTC);
     CCP = 0xD8;
-    CLKCR = 0b01001110;
+    CLKCR = temp;
 
     PORTA = 0;
 
@@ -115,7 +116,7 @@ int main (void) {
 
     adcSetup();    
 
-   sleep();
+    sleep();
     
     while(1) {
         _delay_ms(100);
