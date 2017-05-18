@@ -1,9 +1,23 @@
+/**
+
+Stuff to implement:
+ X RS485 direction control by using two separate receiver and transmitter control lines
+ X Provide moisture in input register
+ X Provide temperature in input register 
+ * Address control via holding register
+ * Baud rate control via holding register
+ X Deep sleep mode via holding register
+ X Excitation control via holding register
+ * Add a timekeeper millisecond timer  
+*/
+
 #include <inttypes.h>
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdio.h>
 #include <avr/sleep.h>
 #include "thermistor.h"
+#include "yaMBSiavr.h"
 
 
 #define DRIVER_ENABLE PA4
@@ -16,6 +30,29 @@
 
 #define POWER_TO_DIVIDERS PA6
 
+
+volatile uint8_t instate = 0;
+volatile uint8_t outstate = 0;
+volatile union{
+            uint16_t asArray[2];
+            struct {
+                uint16_t moisture;
+                int16_t temperature;
+            } asStruct;
+        } inputRegisters;
+
+volatile union{
+            uint16_t asArray[6];
+            struct {
+                uint16_t address;
+                uint16_t baud;
+                uint16_t parity;
+                uint16_t stopBits;
+                uint16_t measurementIntervalMs;
+                uint16_t sleepTimeS;
+            } asStruct;
+        } holdingRegisters;
+
 inline static void serialSetup() {
     #define BAUD 9600
     #include <util/setbaud.h>
@@ -27,21 +64,33 @@ inline static void serialSetup() {
     UCSR0C = _BV(UCSZ00) | _BV(UCSZ01);
 }
 
-inline static void serialDriverEnable() {
-    PORTA |= _BV(DRIVER_ENABLE);
+inline static void serialReaderDisable() {
+    PORTA |= _BV(READER_ENABLE);
 }
 
 inline static void serialDriverDisable() {
     PORTA &= ~_BV(DRIVER_ENABLE);
 }
 
+inline static void serialDriverEnable() {
+    serialReaderDisable();
+    PORTA |= _BV(DRIVER_ENABLE);
+}
+
 inline static void serialReaderEnable() {
+    serialDriverDisable();
     PORTA &= ~_BV(READER_ENABLE);
 }
 
-inline static void serialReaderDisable() {
-    PORTA |= _BV(READER_ENABLE);
+
+void transceiver_txen(void) {
+    serialDriverEnable();
 }
+
+void transceiver_rxen(void) {
+    serialReaderEnable();
+}
+
 
 void uart_putchar(char c, FILE *stream) {
     if (c == '\n') {
@@ -79,83 +128,186 @@ uint16_t adcReadChannel(uint8_t channel) {
 
 uint8_t temp = 0;
 
-void sleep() {
+void modbusGet(void) {
+    if (modbusGetBusState() & (1<<ReceiveCompleted)) {
+        switch(rxbuffer[1]) {
+            case fcReadHoldingRegisters: {
+                modbusExchangeRegisters(holdingRegisters.asArray,0,4);
+            }
+            break;
+            
+            case fcReadInputRegisters: {
+                modbusExchangeRegisters(inputRegisters.asArray,0,4);
+            }
+            break;
+            
+            case fcPresetSingleRegister: {
+                modbusExchangeRegisters(holdingRegisters.asArray,0,4);
+            }
+            break;
+            
+            case fcPresetMultipleRegisters: {
+                modbusExchangeRegisters(holdingRegisters.asArray,0,4);
+            }
+            break;
+            
+            default: {
+                modbusSendException(ecIllegalFunction);
+            }
+            break;
+        }
+    }
+}
+
+
+#define STATE_MEASUREMENT_OFF 0
+#define STATE_MEASUREMENT_STABILIZE 1
+#define STATE_MEASUREMENT_IN_PROGRESS 2
+uint8_t measurementState = STATE_MEASUREMENT_OFF;
+
+inline static uint8_t isTimeToMeasure() {
+    return 0;
+}
+
+inline static uint8_t isTimeToStabilizeOver() {
+    return 0;
+}
+
+inline static void adcEnable() {
+    ADCSRA |= _BV(ADEN);
+}
+
+inline static void adcDisable() {
+    ADCSRA &= ~_BV(ADEN);
+}
+
+inline static void excitationEnable() {
+    temp = CLKCR & ~_BV(CKOUTC);
+    CCP = 0xD8;
+    CLKCR = temp;
+}
+
+inline static void excitationDisable() {
     temp = CLKCR | _BV(CKOUTC);
     CCP = 0xD8;
     CLKCR = temp;
+}
 
+void sleep() {
+    excitationDisable();
     PORTA = 0;
 
     DDRB |= _BV(PB2);
     PORTB &= ~_BV(PB2);
 
     serialDriverDisable();
-    serialReaderEnable();
+    serialReaderDisable();
     UCSR0B &= ~_BV(TXEN0);
 
-    ADCSRA &= ~_BV(ADEN);
+    adcDisable();
 
     ACSR0A = _BV(ACD0); //disable comparators
     ACSR1A = _BV(ACD1);
-    
+
+    uint16_t sleepTimes = 0;
+    if(holdingRegisters.asStruct.sleepTimeS >=8) {
+        WDTCSR = 0b00001001;
+        sleepTimes = holdingRegisters.asStruct.sleepTimeS / 8;
+    } else if(holdingRegisters.asStruct.sleepTimeS >=4) {
+        WDTCSR = 0b00001000;
+        sleepTimes = holdingRegisters.asStruct.sleepTimeS / 4;
+    } else if(holdingRegisters.asStruct.sleepTimeS >=2) {
+        WDTCSR = 0b00000111;
+        sleepTimes = holdingRegisters.asStruct.sleepTimeS / 2;
+    } else if(holdingRegisters.asStruct.sleepTimeS >=1) {
+        WDTCSR = 0b00000110;
+        sleepTimes = 1;
+    }
+
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-    sleep_mode();
+
+    WDTCSR |= _BV(WDIE);
+    while(sleepTimes-- > 0) {
+        WDTCSR |= _BV(WDIE);
+        sleep_mode();
+    }
+
+    temp = WDTCSR & ~_BV(WDE);
+    CCP = 0xD8;
+    WDTCSR = temp;
+
 }
 
 
+inline static void processMeasurements() {
+    switch(measurementState) {
+        case STATE_MEASUREMENT_OFF:
+            if(isTimeToMeasure()) {
+                powerToDividersEnable();
+                adcEnable();
+                excitationEnable();
+                measurementState = STATE_MEASUREMENT_STABILIZE;
+            }
+            break;
 
-char buff[10];
+        case STATE_MEASUREMENT_STABILIZE:
+            if(isTimeToStabilizeOver()) {
+                measurementState = STATE_MEASUREMENT_IN_PROGRESS;
+            }
+            break;
+
+        case STATE_MEASUREMENT_IN_PROGRESS: {      
+            uint16_t thermistor = adcReadChannel(CHANNEL_THERMISTOR);
+            inputRegisters.asStruct.temperature = thermistorLsbToTemperature(thermistor);
+            
+            uint16_t caph = adcReadChannel(CHANNEL_CAPACITANCE_HIGH);
+            uint16_t capl = adcReadChannel(CHANNEL_CAPACITANCE_LOW);
+            inputRegisters.asStruct.moisture = caph - capl;
+
+            powerToDividersDisable();
+            adcDisable();
+            excitationDisable();
+            measurementState = STATE_MEASUREMENT_OFF;
+        }
+            break;
+    }
+}
+
+inline static isSleepTimeSet() {
+    return 0 != holdingRegisters.asStruct.sleepTimeS;
+}
 
 int main (void) {
 
-    stdout = &uart_output;
     serialSetup();
     
     serialDriverEnable();
     serialReaderDisable();
-
+    
+    modbusInit();
+    
     adcSetup();    
 
     sleep();
     
     while(1) {
-        _delay_ms(100);
-        powerToDividersEnable();
-        _delay_ms(2);
-        uint16_t thermistor = adcReadChannel(CHANNEL_THERMISTOR);
+        processMeasurements();
+        modbusGet();
+        // _delay_ms(100);
 
-        fputs("Thermistor = ", stdout);
+        // powerToDividersEnable();
+        // _delay_ms(2);
+        // uint16_t thermistor = adcReadChannel(CHANNEL_THERMISTOR);
+        // int tt = thermistorLsbToTemperature(thermistor);
         
-        itoa(thermistor, buff, 10);
-        fputs(buff, stdout);
-        fputs(" -> ", stdout);
-        
-        int tt = thermistorLsbToTemperature(thermistor);
-        itoa((int)tt, buff, 10);
-        fputs(buff, stdout);
-        
-        uint16_t caph = adcReadChannel(CHANNEL_CAPACITANCE_HIGH);
-        uint16_t capl = adcReadChannel(CHANNEL_CAPACITANCE_LOW);
+        // uint16_t caph = adcReadChannel(CHANNEL_CAPACITANCE_HIGH);
+        // uint16_t capl = adcReadChannel(CHANNEL_CAPACITANCE_LOW);
 
-        fputs(" Capacitance = ", stdout);
-        itoa(caph, buff, 10);
-        fputs(buff, stdout);
-        fputs(" - ", stdout);
+        // powerToDividersDisable();
 
-        itoa(capl, buff, 10);
-        fputs(buff, stdout);
-        fputs(" = ", stdout);
-
-        itoa(caph - capl, buff, 10);
-        fputs(buff, stdout);
-        
-        uint16_t chipTemp = adcReadChannel(CHANNEL_CHIP_TEMP);
-        fputs(" @ temp = ", stdout);
-        itoa(chipTemp, buff, 10);
-        fputs(buff, stdout);
-        puts(".");
-        powerToDividersDisable();
-
-        _delay_ms(100);
+        // _delay_ms(100);
+        if(isSleepTimeSet()) {
+            sleep();
+        }
     }
 }

@@ -14,11 +14,11 @@ FUSE_H  = 0xDF
 FUSE_E  = 0xED
 AVRDUDE = avrdude -c usbasp -P usb -p $(DEVICE) -e # edit this line for your programmer
 
-CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=0  -Os 
+CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=0  -Os -std=gnu99
 CFLAGS += -ffunction-sections -fdata-sections -save-temps 
 LDFLAGS += -Wl,--gc-sections,--relax
 
-OBJECTS = main.o thermistor.o
+OBJECTS = main.o thermistor.o yaMBSiavr.o
 
 COMPILE = avr-gcc-4.9.2 -DF_CPU=$(F_CPU) $(CFLAGS) $(LDFLAGS) -mmcu=$(DEVICE)  
 
