@@ -81,7 +81,7 @@ LICENSE:
  * Change this value if you are using a different frequency and/or
  * different baudrate.
 */
-#define Baud 64 //38400@20e6Hz
+#define Baud 103 //19200@16e6Hz
 
 #elif defined(__AVR_ATmega164P__)
 #define UART_TRANSMIT_COMPLETE_INTERRUPT USART1_TX_vect

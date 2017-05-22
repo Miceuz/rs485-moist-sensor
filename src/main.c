@@ -11,6 +11,7 @@ Stuff to implement:
  * Add a timekeeper millisecond timer  
 */
 
+#include <stdbool.h>
 #include <inttypes.h>
 #include <avr/io.h>
 #include <util/delay.h>
@@ -54,15 +55,15 @@ volatile union{
         } holdingRegisters;
 
 inline static void serialSetup() {
-    #define BAUD 9600
+    #define BAUD 19200
     #include <util/setbaud.h>
-    DDRA |= _BV(DRIVER_ENABLE);
-    DDRA |= _BV(READER_ENABLE);
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
     UCSR0B = _BV(RXEN0) | _BV(TXEN0);
     UCSR0C = _BV(UCSZ00) | _BV(UCSZ01);
 }
+
+
 
 inline static void serialReaderDisable() {
     PORTA |= _BV(READER_ENABLE);
@@ -165,12 +166,12 @@ void modbusGet(void) {
 #define STATE_MEASUREMENT_IN_PROGRESS 2
 uint8_t measurementState = STATE_MEASUREMENT_OFF;
 
-inline static uint8_t isTimeToMeasure() {
-    return 0;
+inline static bool isTimeToMeasure() {
+    return false;
 }
 
-inline static uint8_t isTimeToStabilizeOver() {
-    return 0;
+inline static bool isTimeToStabilizeOver() {
+    return true;
 }
 
 inline static void adcEnable() {
@@ -273,26 +274,32 @@ inline static void processMeasurements() {
     }
 }
 
-inline static isSleepTimeSet() {
+inline static bool isSleepTimeSet() {
     return 0 != holdingRegisters.asStruct.sleepTimeS;
 }
 
 int main (void) {
 
-    serialSetup();
-    
-    serialDriverEnable();
-    serialReaderDisable();
-    
-    modbusInit();
-    
-    adcSetup();    
+    inputRegisters.asStruct.temperature=0xDEAD;
+    inputRegisters.asStruct.moisture=0xC0DE;
 
-    sleep();
+    serialSetup();
+    DDRA |= _BV(DRIVER_ENABLE);
+    DDRA |= _BV(READER_ENABLE);
+    
+//    serialDriverDisable();
+    serialDriverEnable();
+    
+    // modbusInit();
+    // modbusSetAddress(0x01);
+    // adcSetup();    
+
+
     
     while(1) {
-        processMeasurements();
-        modbusGet();
+        printf("Valit\n");        
+        // processMeasurements();
+        // modbusGet();
         // _delay_ms(100);
 
         // powerToDividersEnable();
@@ -306,8 +313,8 @@ int main (void) {
         // powerToDividersDisable();
 
         // _delay_ms(100);
-        if(isSleepTimeSet()) {
-            sleep();
-        }
+        // if(isSleepTimeSet()) {
+        //     sleep();
+        // }
     }
 }

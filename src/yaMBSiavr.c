@@ -192,7 +192,7 @@ void modbusInit(void)
 	UCSRC = (3<<UCSZ0); //Frame Size
 	UART_CONTROL|=(1<<TXCIE); //Transmit Complete Interrupt an
 	#if PHYSICAL_TYPE == 485
-	TRANSCEIVER_ENABLE_PORT_DDR|=(1<<TRANSCEIVER_ENABLE_PIN);
+	// TRANSCEIVER_ENABLE_PORT_DDR|=(1<<TRANSCEIVER_ENABLE_PIN);
 	transceiver_rxen();
 	#endif
 	BusState=(1<<TimerActive);
