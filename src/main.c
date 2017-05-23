@@ -4,21 +4,25 @@ Stuff to implement:
  X RS485 direction control by using two separate receiver and transmitter control lines
  X Provide moisture in input register
  X Provide temperature in input register 
- * Address control via holding register
+ X Address control via holding register
  * Baud rate control via holding register
+ * Update timeout counters when updating baud 
+ X Save config to eeprom and reset
  X Deep sleep mode via holding register
  X Excitation control via holding register
- * Add a timekeeper millisecond timer  
+ X Add a timekeeper millisecond timer  
 */
 
 #include <stdbool.h>
 #include <inttypes.h>
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 #include <stdio.h>
 #include <avr/sleep.h>
 #include "thermistor.h"
 #include "yaMBSiavr.h"
+#include <avr/eeprom.h>
 
 
 #define DRIVER_ENABLE PA4
@@ -31,9 +35,6 @@ Stuff to implement:
 
 #define POWER_TO_DIVIDERS PA6
 
-
-volatile uint8_t instate = 0;
-volatile uint8_t outstate = 0;
 volatile union{
             uint16_t asArray[2];
             struct {
@@ -54,16 +55,13 @@ volatile union{
             } asStruct;
         } holdingRegisters;
 
-inline static void serialSetup() {
-    #define BAUD 19200
-    #include <util/setbaud.h>
-    UBRR0H = UBRRH_VALUE;
-    UBRR0L = UBRRL_VALUE;
-    UCSR0B = _BV(RXEN0) | _BV(TXEN0);
-    UCSR0C = _BV(UCSZ00) | _BV(UCSZ01);
-}
+uint8_t eeprom_address EEMEM = 1;
+uint8_t eeprom_baudIdx EEMEM = 0;
+uint8_t eeprom_parityIdx EEMEM = 0;
+uint8_t eeprom_stopBits_dx EEMEM = 0;
+uint16_t eeprom_measurementIntervalMs EEMEM = 500;
 
-
+volatile uint16_t milliseconds = 0;
 
 inline static void serialReaderDisable() {
     PORTA |= _BV(READER_ENABLE);
@@ -92,17 +90,6 @@ void transceiver_rxen(void) {
     serialReaderEnable();
 }
 
-
-void uart_putchar(char c, FILE *stream) {
-    if (c == '\n') {
-        uart_putchar('\r', stream);
-    }
-    loop_until_bit_is_set(UCSR0A, UDRE0);
-    UDR0 = c;
-}
-
-FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
-
 void powerToDividersEnable() {
     PORTA |= _BV(POWER_TO_DIVIDERS);
 }
@@ -129,26 +116,45 @@ uint16_t adcReadChannel(uint8_t channel) {
 
 uint8_t temp = 0;
 
+inline static void reset() {
+    WDTCSR = _BV(WDE);//reset in 16ms
+    while(1);
+} 
+
+inline static bool isValidAddress(uint8_t address) {
+    return address > 0 && address < 248;
+}
+
 void modbusGet(void) {
     if (modbusGetBusState() & (1<<ReceiveCompleted)) {
         switch(rxbuffer[1]) {
             case fcReadHoldingRegisters: {
-                modbusExchangeRegisters(holdingRegisters.asArray,0,4);
+                modbusExchangeRegisters(holdingRegisters.asArray,0,6);
             }
             break;
             
             case fcReadInputRegisters: {
-                modbusExchangeRegisters(inputRegisters.asArray,0,4);
+                modbusExchangeRegisters(inputRegisters.asArray,0,2);
             }
             break;
             
             case fcPresetSingleRegister: {
-                modbusExchangeRegisters(holdingRegisters.asArray,0,4);
+                modbusExchangeRegisters(holdingRegisters.asArray,0,6);
+
+                if(0 == modbusGetRegisterNumber()){
+                    if(isValidAddress(holdingRegisters.asStruct.address)) {
+                        eeprom_write_byte(&eeprom_address, holdingRegisters.asStruct.address);                    
+                        while(!modbusIsIdle()) {
+                            //wait
+                        }
+                        reset();
+                    }
+                }
             }
             break;
             
             case fcPresetMultipleRegisters: {
-                modbusExchangeRegisters(holdingRegisters.asArray,0,4);
+                modbusExchangeRegisters(holdingRegisters.asArray,0,6);
             }
             break;
             
@@ -167,11 +173,11 @@ void modbusGet(void) {
 uint8_t measurementState = STATE_MEASUREMENT_OFF;
 
 inline static bool isTimeToMeasure() {
-    return false;
+    return milliseconds > holdingRegisters.asStruct.measurementIntervalMs;
 }
 
 inline static bool isTimeToStabilizeOver() {
-    return true;
+    return milliseconds > holdingRegisters.asStruct.measurementIntervalMs + 2;
 }
 
 inline static void adcEnable() {
@@ -194,6 +200,8 @@ inline static void excitationDisable() {
     CLKCR = temp;
 }
 
+uint16_t sleepTimes = 0;
+
 void sleep() {
     excitationDisable();
     PORTA = 0;
@@ -210,12 +218,11 @@ void sleep() {
     ACSR0A = _BV(ACD0); //disable comparators
     ACSR1A = _BV(ACD1);
 
-    uint16_t sleepTimes = 0;
     if(holdingRegisters.asStruct.sleepTimeS >=8) {
-        WDTCSR = 0b00001001;
+        WDTCSR = 0b00100001;
         sleepTimes = holdingRegisters.asStruct.sleepTimeS / 8;
     } else if(holdingRegisters.asStruct.sleepTimeS >=4) {
-        WDTCSR = 0b00001000;
+        WDTCSR = 0b00100000;
         sleepTimes = holdingRegisters.asStruct.sleepTimeS / 4;
     } else if(holdingRegisters.asStruct.sleepTimeS >=2) {
         WDTCSR = 0b00000111;
@@ -225,20 +232,33 @@ void sleep() {
         sleepTimes = 1;
     }
 
+    holdingRegisters.asStruct.sleepTimeS = 0;
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 
     WDTCSR |= _BV(WDIE);
-    while(sleepTimes-- > 0) {
-        WDTCSR |= _BV(WDIE);
+    while(sleepTimes > 0) {
         sleep_mode();
     }
 
-    temp = WDTCSR & ~_BV(WDE);
+    temp = WDTCSR & ~_BV(WDE) & ~_BV(WDIE);
     CCP = 0xD8;
     WDTCSR = temp;
 
+    UCSR0B |= _BV(TXEN0);
+    serialReaderEnable();
 }
 
+ISR(WDT_vect) {
+    WDTCSR |= _BV(WDIE);
+    sleepTimes--;
+}
+
+inline static void startMeasurementTimer() {
+    TIMSK1 &= ~_BV(OCIE1A);
+    milliseconds = 0;
+    TCNT1 = 0;
+    TIMSK1 |= _BV(OCIE1A);
+}
 
 inline static void processMeasurements() {
     switch(measurementState) {
@@ -263,11 +283,12 @@ inline static void processMeasurements() {
             
             uint16_t caph = adcReadChannel(CHANNEL_CAPACITANCE_HIGH);
             uint16_t capl = adcReadChannel(CHANNEL_CAPACITANCE_LOW);
-            inputRegisters.asStruct.moisture = caph - capl;
+            inputRegisters.asStruct.moisture = 1023 - (caph - capl);
 
             powerToDividersDisable();
             adcDisable();
             excitationDisable();
+            startMeasurementTimer();
             measurementState = STATE_MEASUREMENT_OFF;
         }
             break;
@@ -278,43 +299,78 @@ inline static bool isSleepTimeSet() {
     return 0 != holdingRegisters.asStruct.sleepTimeS;
 }
 
-int main (void) {
+void timer0100usStart(void) {
+    TCCR0B|=(1<<CS01); //prescaler 8
+    TIMSK0|=(1<<TOIE0);
+}
 
-    inputRegisters.asStruct.temperature=0xDEAD;
-    inputRegisters.asStruct.moisture=0xC0DE;
+void timer1msStart() {
+    OCR1A = (uint16_t) 16000L;
+    TIMSK1 |= _BV(OCIE1A);
+    TCCR1B = _BV(CS10) | _BV(WGM12);
+}
 
-    serialSetup();
+ISR(TIMER1_COMPA_vect) {
+    milliseconds++;
+}
+
+ISR(TIMER0_OVF_vect) {
+    modbusTickTimer();
+}
+
+inline static void saveConfig() {
+
+}
+
+inline static void loadConfig() {
+    temp = eeprom_read_byte(&eeprom_address);
+    if(isValidAddress(temp)) {
+        holdingRegisters.asStruct.address = temp;
+    } else {
+        holdingRegisters.asStruct.address = 1;
+    }
+
+    holdingRegisters.asStruct.baud = eeprom_read_byte(&eeprom_baudIdx);
+    holdingRegisters.asStruct.parity = eeprom_read_byte(&eeprom_parityIdx);
+    holdingRegisters.asStruct.stopBits = eeprom_read_byte(&eeprom_stopBits_dx);
+    holdingRegisters.asStruct.measurementIntervalMs = eeprom_read_word(&eeprom_measurementIntervalMs);
+    holdingRegisters.asStruct.sleepTimeS = 0;
+}
+
+inline static void  wdtDisable(){
+    MCUSR = 0;
+    temp = WDTCSR & ~_BV(WDE) & ~_BV(WDIE);
+    CCP = 0xD8;
+    WDTCSR = temp;
+}
+
+void main (void) {
+    wdtDisable();
+
     DDRA |= _BV(DRIVER_ENABLE);
     DDRA |= _BV(READER_ENABLE);
-    
-//    serialDriverDisable();
+
+    // DDRA |= _BV(PA3);
+    // PINA |= _BV(PA3);
+    // _delay_ms(100);
+    // PINA |= _BV(PA3);
+
+    loadConfig();
+
     serialDriverEnable();
     
-    // modbusInit();
-    // modbusSetAddress(0x01);
-    // adcSetup();    
+    modbusSetAddress(holdingRegisters.asStruct.address);
+    modbusInit();
+    adcSetup();    
+    sei();    
+    timer0100usStart();
+    timer1msStart();
+   while(1) {
+        processMeasurements();
+        modbusGet();
 
-
-    
-    while(1) {
-        printf("Valit\n");        
-        // processMeasurements();
-        // modbusGet();
-        // _delay_ms(100);
-
-        // powerToDividersEnable();
-        // _delay_ms(2);
-        // uint16_t thermistor = adcReadChannel(CHANNEL_THERMISTOR);
-        // int tt = thermistorLsbToTemperature(thermistor);
-        
-        // uint16_t caph = adcReadChannel(CHANNEL_CAPACITANCE_HIGH);
-        // uint16_t capl = adcReadChannel(CHANNEL_CAPACITANCE_LOW);
-
-        // powerToDividersDisable();
-
-        // _delay_ms(100);
-        // if(isSleepTimeSet()) {
-        //     sleep();
-        // }
+        if(modbusIsIdle() && isSleepTimeSet()) {
+            sleep();
+        }
     }
 }

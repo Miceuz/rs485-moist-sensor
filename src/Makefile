@@ -43,7 +43,7 @@ fuse:
 
 # rule for uploading firmware:
 flash: main.hex
-	$(AVRDUDE) -U flash:w:main.hex:i #-B 20.92 
+	$(AVRDUDE) -U flash:w:main.hex:i -U eeprom:w:main.eep:i #-B 20.92 
 sflash: main.hex
 	$(AVRDUDE) -U flash:w:main.hex:i -B 20.92
 # rule for deleting dependent files (those which can be built by Make):
@@ -76,6 +76,7 @@ main.elf: $(OBJECTS)	# usbdrv dependency only needed because we copy it
 main.hex: main.elf
 	rm -f main.hex main.eep.hex
 	avr-objcopy -j .text -j .data -O ihex main.elf main.hex
+	avr-objcopy -j .eeprom --set-section-flags=.eeprom="alloc,load" --change-section-lma .eeprom=0 -O ihex main.elf main.eep
 	avr-size main.hex
 
 # debugging targets:
