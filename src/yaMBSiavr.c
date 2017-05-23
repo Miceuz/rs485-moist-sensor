@@ -154,7 +154,9 @@ ISR(UART_RECEIVE_INTERRUPT)
 			modbusReset();	
 		} else {
 			rxbuffer[DataPos]=data;
-			DataPos++; //TODO: maybe prevent this from exceeding 255?
+			if(DataPos+1 < MaxFrameIndex) {
+				DataPos++;
+			}
 		}	    
     } else if (!(BusState & (1<<ReceiveCompleted)) && !(BusState & (1<<TransmitRequested)) && !(BusState & (1<<Transmitting)) && !(BusState & (1<<Receiving)) && (BusState & (1<<BusTimedOut))) { 
 		 rxbuffer[0]=data;
