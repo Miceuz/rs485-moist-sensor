@@ -18,7 +18,7 @@ CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=0  -Os -std=gnu99
 CFLAGS += -ffunction-sections -fdata-sections -save-temps 
 LDFLAGS += -Wl,--gc-sections,--relax
 
-OBJECTS = main.o thermistor.o yaMBSiavr.o
+OBJECTS = main.o thermistor.o yaMBSiavr.o measurement.o
 
 COMPILE = avr-gcc-4.9.2 -DF_CPU=$(F_CPU) $(CFLAGS) $(LDFLAGS) -mmcu=$(DEVICE)  
 

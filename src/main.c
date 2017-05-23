@@ -20,20 +20,12 @@ Stuff to implement:
 #include <util/delay.h>
 #include <stdio.h>
 #include <avr/sleep.h>
-#include "thermistor.h"
 #include "yaMBSiavr.h"
 #include <avr/eeprom.h>
-
+#include <measurement.h>
 
 #define DRIVER_ENABLE PA4
 #define READER_ENABLE PA0
-
-#define CHANNEL_THERMISTOR 3
-#define CHANNEL_CAPACITANCE_HIGH 5
-#define CHANNEL_CAPACITANCE_LOW 7
-#define CHANNEL_CHIP_TEMP 0b00001100
-
-#define POWER_TO_DIVIDERS PA6
 
 volatile union{
             uint16_t asArray[2];
@@ -61,7 +53,6 @@ uint8_t eeprom_parityIdx EEMEM = 0;
 uint8_t eeprom_stopBits_dx EEMEM = 0;
 uint16_t eeprom_measurementIntervalMs EEMEM = 500;
 
-volatile uint16_t milliseconds = 0;
 
 inline static void serialReaderDisable() {
     PORTA |= _BV(READER_ENABLE);
@@ -90,29 +81,6 @@ void transceiver_rxen(void) {
     serialReaderEnable();
 }
 
-void powerToDividersEnable() {
-    PORTA |= _BV(POWER_TO_DIVIDERS);
-}
-
-void powerToDividersDisable() {
-    PORTA &= ~_BV(POWER_TO_DIVIDERS);
-}
-
-static inline void adcSetup() {
-    DDRA |= _BV(POWER_TO_DIVIDERS);
-
-    ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS0);
-    ADMUXB = 0;
-    DIDR0 |= _BV(ADC7D) | _BV(ADC5D) | _BV(ADC3D);// | _BV(ADC0D) | _BV(ADC1D) | _BV(ADC2D) | _BV(ADC4D) | _BV(ADC6D) | _BV(ADC8D);
-}
-
-uint16_t adcReadChannel(uint8_t channel) {
-    ADMUXA = channel;
-    ADCSRA |= _BV(ADSC);
-    loop_until_bit_is_clear(ADCSRA, ADSC);
-    uint16_t ret = ADC;
-    return ret;
-}
 
 uint8_t temp = 0;
 
@@ -167,56 +135,17 @@ void modbusGet(void) {
 }
 
 
-#define STATE_MEASUREMENT_OFF 0
-#define STATE_MEASUREMENT_STABILIZE 1
-#define STATE_MEASUREMENT_IN_PROGRESS 2
-uint8_t measurementState = STATE_MEASUREMENT_OFF;
 
-inline static bool isTimeToMeasure() {
-    return milliseconds > holdingRegisters.asStruct.measurementIntervalMs;
-}
-
-inline static bool isTimeToStabilizeOver() {
-    return milliseconds > holdingRegisters.asStruct.measurementIntervalMs + 2;
-}
-
-inline static void adcEnable() {
-    ADCSRA |= _BV(ADEN);
-}
-
-inline static void adcDisable() {
-    ADCSRA &= ~_BV(ADEN);
-}
-
-inline static void excitationEnable() {
-    temp = CLKCR & ~_BV(CKOUTC);
-    CCP = 0xD8;
-    CLKCR = temp;
-}
-
-inline static void excitationDisable() {
-    temp = CLKCR | _BV(CKOUTC);
-    CCP = 0xD8;
-    CLKCR = temp;
-}
 
 uint16_t sleepTimes = 0;
 
 void sleep() {
-    excitationDisable();
+    measurementReset();
     PORTA = 0;
-
-    DDRB |= _BV(PB2);
-    PORTB &= ~_BV(PB2);
 
     serialDriverDisable();
     serialReaderDisable();
     UCSR0B &= ~_BV(TXEN0);
-
-    adcDisable();
-
-    ACSR0A = _BV(ACD0); //disable comparators
-    ACSR1A = _BV(ACD1);
 
     if(holdingRegisters.asStruct.sleepTimeS >=8) {
         WDTCSR = 0b00100001;
@@ -253,48 +182,6 @@ ISR(WDT_vect) {
     sleepTimes--;
 }
 
-inline static void startMeasurementTimer() {
-    TIMSK1 &= ~_BV(OCIE1A);
-    milliseconds = 0;
-    TCNT1 = 0;
-    TIMSK1 |= _BV(OCIE1A);
-}
-
-inline static void processMeasurements() {
-    switch(measurementState) {
-        case STATE_MEASUREMENT_OFF:
-            if(isTimeToMeasure()) {
-                powerToDividersEnable();
-                adcEnable();
-                excitationEnable();
-                measurementState = STATE_MEASUREMENT_STABILIZE;
-            }
-            break;
-
-        case STATE_MEASUREMENT_STABILIZE:
-            if(isTimeToStabilizeOver()) {
-                measurementState = STATE_MEASUREMENT_IN_PROGRESS;
-            }
-            break;
-
-        case STATE_MEASUREMENT_IN_PROGRESS: {      
-            uint16_t thermistor = adcReadChannel(CHANNEL_THERMISTOR);
-            inputRegisters.asStruct.temperature = thermistorLsbToTemperature(thermistor);
-            
-            uint16_t caph = adcReadChannel(CHANNEL_CAPACITANCE_HIGH);
-            uint16_t capl = adcReadChannel(CHANNEL_CAPACITANCE_LOW);
-            inputRegisters.asStruct.moisture = 1023 - (caph - capl);
-
-            powerToDividersDisable();
-            adcDisable();
-            excitationDisable();
-            startMeasurementTimer();
-            measurementState = STATE_MEASUREMENT_OFF;
-        }
-            break;
-    }
-}
-
 inline static bool isSleepTimeSet() {
     return 0 != holdingRegisters.asStruct.sleepTimeS;
 }
@@ -304,15 +191,6 @@ void timer0100usStart(void) {
     TIMSK0|=(1<<TOIE0);
 }
 
-void timer1msStart() {
-    OCR1A = (uint16_t) 16000L;
-    TIMSK1 |= _BV(OCIE1A);
-    TCCR1B = _BV(CS10) | _BV(WGM12);
-}
-
-ISR(TIMER1_COMPA_vect) {
-    milliseconds++;
-}
 
 ISR(TIMER0_OVF_vect) {
     modbusTickTimer();
@@ -364,12 +242,13 @@ void main (void) {
     adcSetup();    
     sei();    
     timer0100usStart();
-    timer1msStart();
+    timer1msStart(&(holdingRegisters.asStruct.measurementIntervalMs));
    while(1) {
-        processMeasurements();
+        processMeasurements(&(inputRegisters.asStruct.moisture), 
+                            &(inputRegisters.asStruct.temperature));
         modbusGet();
 
-        if(modbusIsIdle() && isSleepTimeSet()) {
+        if(isSleepTimeSet() && modbusIsIdle()) {
             sleep();
         }
     }
