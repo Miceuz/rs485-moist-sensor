@@ -1,6 +1,5 @@
 #ifndef yaMBIavr_H
 #define yaMBIavr_H
-#endif
 /************************************************************************
 Title:    Yet another (small) Modbus (server) implementation for the avr.
 Author:   Max Brueggemann
@@ -231,10 +230,22 @@ LICENSE:
 #define TimerActive 5
 #define GapDetected 6
 
+#define BAUD_1200 	0
+#define BAUD_2400	1
+#define BAUD_4800 	2
+#define BAUD_9600	3
+#define BAUD_19200	4
+#define BAUD_38400	5
+#define BAUD_57600	6
+#define BAUD_115200	7
+
+#define PARITY_NONE 0
+#define PARITY_EVEN 1
+#define PARITY_ODD  2
 /**
 * @brief    Configures the UART. Call this function only once.
 */
-extern void modbusInit(void);
+extern void modbusInit(uint8_t baudIdx, uint8_t parityIdx);
 
 extern void transceiver_txen(void);
 extern void transceiver_rxen(void);
@@ -334,3 +345,5 @@ extern uint8_t modbusExchangeRegisters(volatile uint16_t *ptrToInArray, uint16_t
 
 extern uint8_t modbusGetRegisterNumber(void);
 extern uint8_t modbusIsIdle();
+
+#endif

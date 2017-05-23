@@ -182,16 +182,23 @@ ISR(UART_TRANSMIT_COMPLETE_INTERRUPT)
 	modbusReset();
 }
 
-void modbusInit(void)
-{
-	UBRRH = (unsigned char)(Baud>>8);
-	UBRRL = (unsigned char)Baud;
+/*calculates for 16MHz crystal on attiny441 */
+uint16_t bauds[] = {1665, 832, 415, 207, 103, 51, 33, 16};
+uint8_t parityModes[] = {0, 2, 3};
+
+void modbusInit(uint8_t baudIdx, uint8_t parityIdx) {
+	UBRRH = (unsigned char)(bauds[baudIdx]>>8);
+	UBRRL = (unsigned char)bauds[baudIdx];
 	UART_CONTROL = (1<<RXCIE)|(1<<RXEN)|(1<<TXEN); // USART receiver and transmitter and receive complete interrupt
 	UART_STATUS |= (1<<U2X); //double speed mode. 
-	UCSRC = (3<<UCSZ0); //Frame Size
+	UCSRC = (3<<UCSZ0) | (parityModes[parityIdx] << UPM00); //Frame Size
+	
+	if(0 == parityIdx) {
+		UCSRC |= _BV(USBS0); //if there is no parity, use two stop bits as per Modbus over serial spec v1.02
+	}
+	
 	UART_CONTROL|=(1<<TXCIE); //Transmit Complete Interrupt an
 	#if PHYSICAL_TYPE == 485
-	// TRANSCEIVER_ENABLE_PORT_DDR|=(1<<TRANSCEIVER_ENABLE_PIN);
 	transceiver_rxen();
 	#endif
 	BusState=(1<<TimerActive);

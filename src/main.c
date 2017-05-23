@@ -5,7 +5,7 @@ Stuff to implement:
  X Provide moisture in input register
  X Provide temperature in input register 
  X Address control via holding register
- * Baud rate control via holding register
+ X Baud rate control via holding register
  * Update timeout counters when updating baud 
  X Save config to eeprom and reset
  X Deep sleep mode via holding register
@@ -36,23 +36,22 @@ volatile union{
         } inputRegisters;
 
 volatile union{
-            uint16_t asArray[6];
+            uint16_t asArray[5];
             struct {
                 uint16_t address;
                 uint16_t baud;
                 uint16_t parity;
-                uint16_t stopBits;
                 uint16_t measurementIntervalMs;
                 uint16_t sleepTimeS;
             } asStruct;
         } holdingRegisters;
 
 uint8_t eeprom_address EEMEM = 1;
-uint8_t eeprom_baudIdx EEMEM = 0;
-uint8_t eeprom_parityIdx EEMEM = 0;
-uint8_t eeprom_stopBits_dx EEMEM = 0;
+uint8_t eeprom_baudIdx EEMEM = 4;
+uint8_t eeprom_parityIdx EEMEM = 1;
 uint16_t eeprom_measurementIntervalMs EEMEM = 500;
 
+uint8_t temp = 0;
 
 inline static void serialReaderDisable() {
     PORTA |= _BV(READER_ENABLE);
@@ -81,9 +80,6 @@ void transceiver_rxen(void) {
     serialReaderEnable();
 }
 
-
-uint8_t temp = 0;
-
 inline static void reset() {
     WDTCSR = _BV(WDE);//reset in 16ms
     while(1);
@@ -93,11 +89,39 @@ inline static bool isValidAddress(uint8_t address) {
     return address > 0 && address < 248;
 }
 
+inline static bool isValidBaud(uint8_t baudIdx) {
+    return baudIdx >=0 && baudIdx < 8;
+}
+
+inline static bool isValidParity(uint8_t parityIdx) {
+    return parityIdx >=0 && parityIdx < 3;
+}
+
+static inline bool isAddressRegisterSet() {
+    return 0 == modbusGetRegisterNumber();
+}
+
+static inline bool isBaudRegisterSet() {
+    return 1 == modbusGetRegisterNumber();
+}
+
+static inline bool isParityRegisterSet() {
+    return 2 == modbusGetRegisterNumber();
+}
+
+void saveByteAndReset(uint8_t *eeprom, uint8_t value) {
+    eeprom_write_byte(eeprom, value);                    
+    while(!modbusIsIdle()) {
+        //wait
+    }
+    reset();
+}
+
 void modbusGet(void) {
     if (modbusGetBusState() & (1<<ReceiveCompleted)) {
         switch(rxbuffer[1]) {
             case fcReadHoldingRegisters: {
-                modbusExchangeRegisters(holdingRegisters.asArray,0,6);
+                modbusExchangeRegisters(holdingRegisters.asArray,0,5);
             }
             break;
             
@@ -107,22 +131,26 @@ void modbusGet(void) {
             break;
             
             case fcPresetSingleRegister: {
-                modbusExchangeRegisters(holdingRegisters.asArray,0,6);
+                modbusExchangeRegisters(holdingRegisters.asArray,0,5);
 
-                if(0 == modbusGetRegisterNumber()){
+                if(isAddressRegisterSet()){
                     if(isValidAddress(holdingRegisters.asStruct.address)) {
-                        eeprom_write_byte(&eeprom_address, holdingRegisters.asStruct.address);                    
-                        while(!modbusIsIdle()) {
-                            //wait
-                        }
-                        reset();
+                        saveByteAndReset(&eeprom_address, holdingRegisters.asStruct.address);
+                    }
+                } else if (isBaudRegisterSet()) {
+                    if(isValidBaud(holdingRegisters.asStruct.baud)) {
+                        saveByteAndReset(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
+                    }
+                } else if (isParityRegisterSet()) {
+                    if(isValidParity(holdingRegisters.asStruct.parity)) {
+                        saveByteAndReset(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
                     }
                 }
             }
             break;
             
             case fcPresetMultipleRegisters: {
-                modbusExchangeRegisters(holdingRegisters.asArray,0,6);
+                modbusExchangeRegisters(holdingRegisters.asArray,0,5);
             }
             break;
             
@@ -133,9 +161,6 @@ void modbusGet(void) {
         }
     }
 }
-
-
-
 
 uint16_t sleepTimes = 0;
 
@@ -191,7 +216,6 @@ void timer0100usStart(void) {
     TIMSK0|=(1<<TOIE0);
 }
 
-
 ISR(TIMER0_OVF_vect) {
     modbusTickTimer();
 }
@@ -210,7 +234,6 @@ inline static void loadConfig() {
 
     holdingRegisters.asStruct.baud = eeprom_read_byte(&eeprom_baudIdx);
     holdingRegisters.asStruct.parity = eeprom_read_byte(&eeprom_parityIdx);
-    holdingRegisters.asStruct.stopBits = eeprom_read_byte(&eeprom_stopBits_dx);
     holdingRegisters.asStruct.measurementIntervalMs = eeprom_read_word(&eeprom_measurementIntervalMs);
     holdingRegisters.asStruct.sleepTimeS = 0;
 }
@@ -238,14 +261,14 @@ void main (void) {
     serialDriverEnable();
     
     modbusSetAddress(holdingRegisters.asStruct.address);
-    modbusInit();
+    modbusInit(holdingRegisters.asStruct.baud, holdingRegisters.asStruct.parity);
     adcSetup();    
     sei();    
     timer0100usStart();
     timer1msStart(&(holdingRegisters.asStruct.measurementIntervalMs));
    while(1) {
-        processMeasurements(&(inputRegisters.asStruct.moisture), 
-                            &(inputRegisters.asStruct.temperature));
+        processMeasurements((uint16_t*) &(inputRegisters.asStruct.moisture), 
+                            (uint16_t*) &(inputRegisters.asStruct.temperature));
         modbusGet();
 
         if(isSleepTimeSet() && modbusIsIdle()) {
