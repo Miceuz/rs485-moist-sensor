@@ -147,21 +147,20 @@ ISR(UART_RECEIVE_INTERRUPT)
 	unsigned char data;
 	data = UART_DATA;
 	modbusTimer=0; //reset timer
-	if (!(BusState & (1<<ReceiveCompleted)) && !(BusState & (1<<TransmitRequested)) && !(BusState & (1<<Transmitting)) && (BusState & (1<<Receiving)) && !(BusState & (1<<BusTimedOut)))
-	{
-		if (DataPos>MaxFrameIndex) modbusReset();
-	    	else
-		{
+
+
+	if (!(BusState & (1<<ReceiveCompleted)) && !(BusState & (1<<TransmitRequested)) && !(BusState & (1<<Transmitting)) && (BusState & (1<<Receiving)) && !(BusState & (1<<BusTimedOut))) {
+		if (DataPos>MaxFrameIndex) {
+			modbusReset();	
+		} else {
 			rxbuffer[DataPos]=data;
 			DataPos++; //TODO: maybe prevent this from exceeding 255?
 		}	    
-    	} else 
-	if (!(BusState & (1<<ReceiveCompleted)) && !(BusState & (1<<TransmitRequested)) && !(BusState & (1<<Transmitting)) && !(BusState & (1<<Receiving)) && (BusState & (1<<BusTimedOut))) 
-	{ 
+    } else if (!(BusState & (1<<ReceiveCompleted)) && !(BusState & (1<<TransmitRequested)) && !(BusState & (1<<Transmitting)) && !(BusState & (1<<Receiving)) && (BusState & (1<<BusTimedOut))) { 
 		 rxbuffer[0]=data;
 		 BusState=((1<<Receiving)|(1<<TimerActive));
 		 DataPos=1;
-    	}
+   	}
 }
 
 ISR(UART_TRANSMIT_INTERRUPT)
@@ -232,9 +231,12 @@ void modbusSendException(unsigned char exceptionCode)
 /* @brief:  Returns the amount of requested data objects (coils, discretes, registers)
 *
 */
-inline static uint16_t modbusRequestedAmount(void)
-{
-	return (rxbuffer[5]|(rxbuffer[4]<<8));
+inline static uint16_t modbusRequestedAmount(void) {
+	if (rxbuffer[1]==fcPresetSingleRegister) {
+		return 1;
+	} else {
+		return (rxbuffer[5]|(rxbuffer[4]<<8));
+	}
 }
 
 /* @brief: Returns the address of the first requested data object (coils, discretes, registers)
@@ -279,37 +281,31 @@ uint8_t modbusExchangeRegisters(volatile uint16_t *ptrToInArray, uint16_t startA
 {
 	uint16_t requestedAmount = modbusRequestedAmount();
 	uint16_t requestedAdr = modbusRequestedAddress();
-	if (rxbuffer[1]==fcPresetSingleRegister) requestedAmount=1;
+
 	if ((requestedAdr>=startAddress) && ((startAddress+size)>=(requestedAmount+requestedAdr))) {
-		
-		if ((rxbuffer[1]==fcReadHoldingRegisters) || (rxbuffer[1]==fcReadInputRegisters) )
-		{
-			if ((requestedAmount*2)<=(MaxFrameIndex-4)) //message buffer big enough?
-			{
+		if ((rxbuffer[1]==fcReadHoldingRegisters) || (rxbuffer[1]==fcReadInputRegisters) ){
+			if ((requestedAmount*2)<=(MaxFrameIndex-4)) {//message buffer big enough?
 				rxbuffer[2]=(unsigned char)(requestedAmount*2);
 				intToModbusRegister(ptrToInArray+(unsigned char)(requestedAdr-startAddress),rxbuffer+3,rxbuffer[2]);
 				modbusSendMessage(2+rxbuffer[2]);
 				return 1;
 			} else modbusSendException(ecIllegalDataValue);
 		}
-		else if (rxbuffer[1]==fcPresetMultipleRegisters)
-		{
-			if (((rxbuffer[6])>=requestedAmount*2) && ((DataPos-9)>=rxbuffer[6])) //enough data received?
-			{
+		else if (rxbuffer[1]==fcPresetMultipleRegisters) {
+			if (((rxbuffer[6])>=requestedAmount*2) && ((DataPos-9)>=rxbuffer[6])) { //enough data received?
 				modbusRegisterToInt(rxbuffer+7,ptrToInArray+(unsigned char)(requestedAdr-startAddress),(unsigned char)(requestedAmount));
 				modbusSendMessage(5);
 				return 1;
 			} else modbusSendException(ecIllegalDataValue);//too few data bytes received
 		}
-		else if (rxbuffer[1]==fcPresetSingleRegister)
-		{
+		else if (rxbuffer[1]==fcPresetSingleRegister) {
 			modbusRegisterToInt(rxbuffer+4,ptrToInArray+(unsigned char)(requestedAdr-startAddress),1);
 			modbusSendMessage(5);
 			return 1;
 		} 
 		//modbusSendException(ecSlaveDeviceFailure); //inapropriate call of modbusExchangeRegisters
 		return 0;
-		} else {
+	} else {
 		modbusSendException(ecIllegalDataValue);
 		return 0;
 	}
@@ -371,4 +367,12 @@ uint8_t modbusExchangeBits(volatile uint8_t *ptrToInArray, uint16_t startAddress
 		modbusSendException(ecIllegalDataValue);
 		return 0;
 	}
+}
+
+uint8_t modbusGetRegisterNumber(void) {
+	return rxbuffer[3];
+}
+
+uint8_t modbusIsIdle() {
+	return BusState == (1<<TimerActive);
 }

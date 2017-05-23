@@ -187,7 +187,7 @@ LICENSE:
  *           and also the maximum value. However, it might be useful to set this to lower
  *           values, with 8 being the lowest possible value, in order to save on ram space.
  */
-#define MaxFrameIndex 255
+#define MaxFrameIndex 64
 
 /**
  * @brief    Modbus Function Codes
@@ -331,3 +331,6 @@ extern uint8_t modbusExchangeBits(volatile uint8_t *ptrToInArray, uint16_t start
 *
 */
 extern uint8_t modbusExchangeRegisters(volatile uint16_t *ptrToInArray, uint16_t startAddress, uint16_t size);
+
+extern uint8_t modbusGetRegisterNumber(void);
+extern uint8_t modbusIsIdle();
