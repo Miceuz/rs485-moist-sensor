@@ -25,6 +25,7 @@ LICENSE:
                         
 *************************************************************************/
 
+#include <stdbool.h>
 #include <avr/io.h>
 #include "yaMBSiavr.h"
 #include <avr/interrupt.h>
@@ -118,55 +119,79 @@ void modbusReset(void)
 	modbusTimer=0;
 }
 
-void modbusTickTimer(void)
-{
-	if (BusState&(1<<TimerActive)) 
-	{
+inline static bool isReceiveCompleted() {
+	return (BusState & (1<<ReceiveCompleted));
+}
+
+inline static bool isTransmitRequested() {
+	return (BusState & (1<<TransmitRequested));
+}
+
+inline static bool isTransmitting() {
+	return (BusState & (1<<Transmitting));
+}
+
+inline static bool isReceiving() {
+	return (BusState & (1<<Receiving));
+}
+
+inline static bool isBusTimeout() {
+	return (BusState & (1<<BusTimedOut));
+}
+
+inline static bool isTimerActive() {
+	return BusState&(1<<TimerActive);
+}
+void modbusTickTimer(void) {
+	if (isTimerActive()) {
 		modbusTimer++;
-		if (BusState&(1<<Receiving)) //we are in receiving mode
-		{
-			if ((modbusTimer==modbusInterCharTimeout)) {
-				BusState|=(1<<GapDetected);
-			} else if ((modbusTimer==modbusInterFrameDelayReceiveEnd)) { //end of message
+		if (isReceiving()) {//we are in receiving mode
+			if (modbusTimer == modbusInterCharTimeout) {
+				BusState |= (1<<GapDetected);
+			} else if (modbusTimer == modbusInterFrameDelayReceiveEnd) { //end of message
 				BusState=(1<<ReceiveCompleted);
-				#if ADDRESS_MODE == MULTIPLE_ADR
-               		 if (crc16(rxbuffer,DataPos-3)) { //perform crc check only. This is for multiple/all address mode.
-                	} else modbusReset();
-				#endif
-				#if ADDRESS_MODE == SINGLE_ADR
-				if (rxbuffer[0]==Address && crc16(rxbuffer,DataPos-3)) { //is the message for us? => perform crc check
-				} else modbusReset();
-				#endif
+				if (rxbuffer[0] == Address && crc16(rxbuffer, DataPos-3)) { //is the message for us? => perform crc check
+				} else {
+					modbusReset();
+				}
 			}	
-		} else if (modbusTimer==modbusInterFrameDelayReceiveStart) BusState|=(1<<BusTimedOut);
+		} else if (modbusTimer == modbusInterFrameDelayReceiveStart) {
+			BusState|=(1<<BusTimedOut);
+		}
 	}
 }
 
-ISR(UART_RECEIVE_INTERRUPT)
-{
+
+inline static bool isReceivingFrame() {
+	return !isReceiveCompleted() && !isTransmitRequested() && !isTransmitting() && 
+		isReceiving() && !isBusTimeout();
+}
+
+inline static bool isInInterframe() {
+	return !isReceiveCompleted() && !isTransmitRequested() && !isTransmitting() && 
+    	!isReceiving() && isBusTimeout();
+}
+
+ISR(UART_RECEIVE_INTERRUPT) {
 	unsigned char data;
 	data = UART_DATA;
 	modbusTimer=0; //reset timer
 
-
-	if (!(BusState & (1<<ReceiveCompleted)) && !(BusState & (1<<TransmitRequested)) && !(BusState & (1<<Transmitting)) && (BusState & (1<<Receiving)) && !(BusState & (1<<BusTimedOut))) {
-		if (DataPos>MaxFrameIndex) {
+	if (isReceivingFrame()) {
+		if (DataPos > MaxFrameIndex) {
 			modbusReset();	
 		} else {
-			rxbuffer[DataPos]=data;
-			if(DataPos+1 < MaxFrameIndex) {
-				DataPos++;
-			}
+			rxbuffer[DataPos] = data;
+			DataPos++;
 		}	    
-    } else if (!(BusState & (1<<ReceiveCompleted)) && !(BusState & (1<<TransmitRequested)) && !(BusState & (1<<Transmitting)) && !(BusState & (1<<Receiving)) && (BusState & (1<<BusTimedOut))) { 
-		 rxbuffer[0]=data;
-		 BusState=((1<<Receiving)|(1<<TimerActive));
-		 DataPos=1;
+    } else if (isInInterframe()) { 
+		 rxbuffer[0] = data;
+		 BusState = ((1<<Receiving)|(1<<TimerActive));
+		 DataPos = 1;
    	}
 }
 
-ISR(UART_TRANSMIT_INTERRUPT)
-{
+ISR(UART_TRANSMIT_INTERRUPT) {
 	BusState&=~(1<<TransmitRequested);
 	BusState|=(1<<Transmitting);
 	UART_DATA=rxbuffer[DataPos];
