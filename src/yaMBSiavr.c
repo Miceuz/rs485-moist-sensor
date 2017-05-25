@@ -142,6 +142,7 @@ inline static bool isBusTimeout() {
 inline static bool isTimerActive() {
 	return BusState&(1<<TimerActive);
 }
+
 void modbusTickTimer(void) {
 	if (isTimerActive()) {
 		modbusTimer++;
@@ -265,20 +266,20 @@ void modbusSendException(unsigned char exceptionCode)
 /* @brief:  Returns the amount of requested data objects (coils, discretes, registers)
 *
 */
-inline static uint16_t modbusRequestedAmount(void) {
+inline static uint8_t modbusRequestedAmount(void) {
 	if (rxbuffer[1]==fcPresetSingleRegister) {
 		return 1;
 	} else {
-		return (rxbuffer[5]|(rxbuffer[4]<<8));
+		return (uint8_t)(rxbuffer[5]|(rxbuffer[4]<<8));
 	}
 }
 
 /* @brief: Returns the address of the first requested data object (coils, discretes, registers)
 *
 */
-inline static uint16_t modbusRequestedAddress(void)
+inline static uint8_t modbusRequestedAddress(void)
 {
-	return (rxbuffer[3]|(rxbuffer[2]<<8));
+	return (uint8_t)(rxbuffer[3]|(rxbuffer[2]<<8));
 }
 
 /* @brief: copies a single or multiple bytes from one array of bytes to an array of 16-bit-words

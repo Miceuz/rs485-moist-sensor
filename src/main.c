@@ -20,7 +20,7 @@ Stuff to implement:
 #include <util/delay.h>
 #include <stdio.h>
 #include <avr/sleep.h>
-#include "yaMBSiavr.h"
+#include "modbus.h"
 #include <avr/eeprom.h>
 #include <measurement.h>
 
@@ -118,20 +118,20 @@ void saveByteAndReset(uint8_t *eeprom, uint8_t value) {
 }
 
 void modbusGet(void) {
-    if (modbusGetBusState() & (1<<ReceiveCompleted)) {
-        switch(rxbuffer[1]) {
+    if (modbusIsFrameAvailable()) {
+        switch(modbusGetFunctionCode()) {
             case fcReadHoldingRegisters: {
-                modbusExchangeRegisters(holdingRegisters.asArray,0,5);
+                modbusExchangeRegisters(holdingRegisters.asArray, 5);
             }
             break;
             
             case fcReadInputRegisters: {
-                modbusExchangeRegisters(inputRegisters.asArray,0,2);
+                modbusExchangeRegisters(inputRegisters.asArray, 2);
             }
             break;
             
             case fcPresetSingleRegister: {
-                modbusExchangeRegisters(holdingRegisters.asArray,0,5);
+                modbusExchangeRegisters(holdingRegisters.asArray, 5);
 
                 if(isAddressRegisterSet()){
                     if(isValidAddress(holdingRegisters.asStruct.address)) {
@@ -150,7 +150,7 @@ void modbusGet(void) {
             break;
             
             case fcPresetMultipleRegisters: {
-                modbusExchangeRegisters(holdingRegisters.asArray,0,5);
+                modbusExchangeRegisters(holdingRegisters.asArray, 5);
             }
             break;
             
@@ -217,7 +217,7 @@ void timer0100usStart(void) {
 }
 
 ISR(TIMER0_OVF_vect) {
-    modbusTickTimer();
+//    modbusTickTimer();
 }
 
 inline static void saveConfig() {
@@ -251,10 +251,10 @@ void main (void) {
     DDRA |= _BV(DRIVER_ENABLE);
     DDRA |= _BV(READER_ENABLE);
 
-    // DDRA |= _BV(PA3);
-    // PINA |= _BV(PA3);
-    // _delay_ms(100);
-    // PINA |= _BV(PA3);
+    DDRA |= _BV(PA3);
+    PINA |= _BV(PA3);
+    _delay_ms(100);
+    PINA |= _BV(PA3);
 
     loadConfig();
 
