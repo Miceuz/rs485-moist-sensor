@@ -363,8 +363,7 @@ void modbusSendException(unsigned char exceptionCode)
 */
 void intToModbusRegister(volatile uint16_t *inreg, volatile uint8_t *outreg, uint8_t amount)
 {
-	for (uint8_t c=0; c<amount; c++)
-	{
+	for (uint8_t c=0; c<amount; c++) {
 			*(outreg+c*2) = (uint8_t)(*(inreg+c) >> 8);
 			*(outreg+1+c*2) = (uint8_t)(*(inreg+c));
 	}
@@ -375,8 +374,7 @@ void intToModbusRegister(volatile uint16_t *inreg, volatile uint8_t *outreg, uin
 */
 void modbusRegisterToInt(volatile uint8_t *inreg, volatile uint16_t *outreg, uint8_t amount)
 {
-	for (uint8_t c=0; c<amount; c++)
-	{
+	for (uint8_t c=0; c<amount; c++) {
 		*(outreg+c) = (*(inreg+c*2) << 8) + *(inreg+1+c*2);
 	}
 }

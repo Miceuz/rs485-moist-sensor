@@ -48,7 +48,7 @@ sflash: main.hex
 	$(AVRDUDE) -U flash:w:main.hex:i -B 20.92
 # rule for deleting dependent files (those which can be built by Make):
 clean:
-	rm -f main.hex main.lst main.obj main.cof main.list main.map main.eep.hex main.elf *.o main.s
+	rm -f main.hex main.lst main.obj main.cof main.list main.map main.eep.hex main.elf *.o main.s *.i *.s
 
 # Generic rule for compiling C files:
 .c.o:
