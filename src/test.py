@@ -8,13 +8,15 @@ minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
 minimalmodbus.PARITY=serial.PARITY_EVEN
 minimalmodbus.BAUDRATE=19200
 sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS)
-sensor.debug=True
+# sensor.debug=True
 #print("writing")
 #sensor.write_register(4, value=0, functioncode=6)
 #print("reading holding")
-print(sensor.read_register(4, functioncode=3))
+# print(sensor.read_register(4, functioncode=3))
+# print(sensor.read_register(0, functioncode=4))
+# print(sensor.read_register(1, functioncode=4))
 
-# while True:
-# 	print(sensor.read_register(0, functioncode=4))
-# 	print(sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True))
-# 	sleep(0.1)
+while True:
+	print(sensor.read_register(0, functioncode=4))
+	print(sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True))
+	sleep(0.1)

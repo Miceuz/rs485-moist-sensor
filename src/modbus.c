@@ -94,16 +94,18 @@ uint8_t crc16(volatile uint8_t *ptrToArray,uint8_t inputSize) //A standard CRC a
 }
 
 void start35Timer() {
+    TCNT2 = 0;
     OCR2B = timeout35;
     TIMSK2 |= _BV(OCIE2B);
-    TCNT2 = 0;
+    TIFR2 |= _BV(OCF2B);
     TCCR2B = _BV(CS21);
 }
 
 void start15Timer() {
+    TCNT2 = 0;
     OCR2A = timeout15;
     TIMSK2 |= _BV(OCIE2A);
-    TCNT2 = 0;
+    TIFR2 |= _BV(OCF2A);
     TCCR2B = _BV(CS21);
 }
 
@@ -206,32 +208,29 @@ ISR(UART_RECEIVE_INTERRUPT) {
 	unsigned char data;
 	uint8_t parityError = (UART_STATUS &_BV(UPE0));
 	data = UART_DATA;
-
 	switch(busState){
 		case STATE_INITIAL:
 			start35Timer();
 			break;
 		case STATE_IDLE:
-			start35Timer();
-			start15Timer();
 			busState = STATE_RECEPTION;
 			initFrame();
 			rxbuffer[dataPos] = data;
 			dataPos++;
-			break;
-		case STATE_RECEPTION:
 			start35Timer();
 			start15Timer();
+			break;
+		case STATE_RECEPTION:
 			if(dataPos <= maxFrameIndex) {
 				rxbuffer[dataPos] = data;
 				dataPos++;
 			} else {
 				frameNOK = true;
 			}
+			start35Timer();
+			start15Timer();
 			break;
 		case STATE_CONTROL:
-		    PINA |= _BV(PA3);
-
 			start35Timer();
 			frameNOK = true;
 			break;

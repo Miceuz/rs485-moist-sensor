@@ -211,15 +211,6 @@ inline static bool isSleepTimeSet() {
     return 0 != holdingRegisters.asStruct.sleepTimeS;
 }
 
-void timer0100usStart(void) {
-    TCCR0B|=(1<<CS01); //prescaler 8
-    TIMSK0|=(1<<TOIE0);
-}
-
-ISR(TIMER0_OVF_vect) {
-//    modbusTickTimer();
-}
-
 inline static void saveConfig() {
 
 }
@@ -251,10 +242,10 @@ void main (void) {
     DDRA |= _BV(DRIVER_ENABLE);
     DDRA |= _BV(READER_ENABLE);
 
-    DDRA |= _BV(PA3);
-    PINA |= _BV(PA3);
-    _delay_ms(100);
-    PINA |= _BV(PA3);
+    // DDRA |= _BV(PA3);
+    // PINA |= _BV(PA3);
+    // _delay_ms(100);
+    // PINA |= _BV(PA3);
 
     loadConfig();
 
@@ -264,7 +255,6 @@ void main (void) {
     modbusInit(holdingRegisters.asStruct.baud, holdingRegisters.asStruct.parity);
     adcSetup();    
     sei();    
-    timer0100usStart();
     timer1msStart(&(holdingRegisters.asStruct.measurementIntervalMs));
    while(1) {
         processMeasurements((uint16_t*) &(inputRegisters.asStruct.moisture), 
