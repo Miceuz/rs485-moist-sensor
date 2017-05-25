@@ -205,9 +205,9 @@ bool validateFrame() {
  */
 
 ISR(UART_RECEIVE_INTERRUPT) {
-	unsigned char data;
-	uint8_t parityError = (UART_STATUS &_BV(UPE0));
-	data = UART_DATA;
+	uint8_t parityError = (UCSR0C & _BV(UPM01) && (UCSR0A & _BV(UPE0)));
+	uint8_t data = UART_DATA;
+	
 	switch(busState){
 		case STATE_INITIAL:
 			start35Timer();
@@ -240,7 +240,6 @@ ISR(UART_RECEIVE_INTERRUPT) {
 	}
 
 	// if(parityError) {
-	// 	    PINA |= _BV(PA3);
 	// 	frameNOK = true;
 	// }
 }

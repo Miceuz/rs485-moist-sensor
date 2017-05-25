@@ -6,6 +6,7 @@ from time import sleep
 ADDRESS = 1
 minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
 minimalmodbus.PARITY=serial.PARITY_EVEN
+minimalmodbus.STOPBITS = 1
 minimalmodbus.BAUDRATE=19200
 sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS)
 # sensor.debug=True

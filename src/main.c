@@ -48,7 +48,7 @@ volatile union{
 
 uint8_t eeprom_address EEMEM = 1;
 uint8_t eeprom_baudIdx EEMEM = 4;
-uint8_t eeprom_parityIdx EEMEM = 1;
+uint8_t eeprom_parityIdx EEMEM = 0;
 uint16_t eeprom_measurementIntervalMs EEMEM = 500;
 
 uint8_t temp = 0;
