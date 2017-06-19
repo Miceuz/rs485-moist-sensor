@@ -102,13 +102,21 @@ void measurementReset() {
     measurementState = STATE_MEASUREMENT_OFF;
 }
 
+bool isMeasurementInProgress() {
+    return measurementState != STATE_MEASUREMENT_OFF;
+}
+
+inline static void measurementPeripheryOn() {
+    powerToDividersEnable();
+    adcEnable();
+    excitationEnable();
+}
+
 void processMeasurements(uint16_t *ptrMoisture, int16_t *ptrTemperature) {
     switch(measurementState) {
         case STATE_MEASUREMENT_OFF:
             if(isTimeToMeasure()) {
-                powerToDividersEnable();
-                adcEnable();
-                excitationEnable();
+                measurementPeripheryOn();
                 measurementState = STATE_MEASUREMENT_STABILIZE;
             }
             break;
@@ -127,8 +135,24 @@ void processMeasurements(uint16_t *ptrMoisture, int16_t *ptrTemperature) {
             uint16_t capl = adcReadChannel(CHANNEL_CAPACITANCE_LOW);
             *ptrMoisture = 1023 - (caph - capl);
             measurementReset();
-        }
+            }
             break;
     }
 }
+
+inline static void forceStartMeasurement() {
+    cli();
+    milliseconds = *measurementTimeoutMs+1;
+    sei();
+    measurementPeripheryOn();
+    measurementState = STATE_MEASUREMENT_STABILIZE;
+}
+
+void performMeasurement(uint16_t *ptrMoisture, int16_t *ptrTemperature) {
+    forceStartMeasurement();
+    while(isMeasurementInProgress()) {
+        processMeasurements(ptrMoisture, ptrTemperature);
+    }
+}
+
 

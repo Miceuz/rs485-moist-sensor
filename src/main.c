@@ -198,6 +198,9 @@ void sleep() {
     CCP = 0xD8;
     WDTCSR = temp;
 
+    performMeasurement((uint16_t*) &(inputRegisters.asStruct.moisture), 
+                            (uint16_t*) &(inputRegisters.asStruct.temperature));
+
     UCSR0B |= _BV(TXEN0);
     serialReaderEnable();
 }
@@ -223,8 +226,20 @@ inline static void loadConfig() {
         holdingRegisters.asStruct.address = 1;
     }
 
-    holdingRegisters.asStruct.baud = eeprom_read_byte(&eeprom_baudIdx);
-    holdingRegisters.asStruct.parity = eeprom_read_byte(&eeprom_parityIdx);
+    temp = eeprom_read_byte(&eeprom_baudIdx);
+    if(temp >= 0 && temp < 8) {
+        holdingRegisters.asStruct.baud = temp;
+    } else {
+        holdingRegisters.asStruct.baud = 4;
+    }
+
+    temp = eeprom_read_byte(&eeprom_parityIdx);
+    if(temp >=0 && temp < 3) {
+        holdingRegisters.asStruct.parity = temp;
+    } else {
+        holdingRegisters.asStruct.parity = 0;
+    }
+
     holdingRegisters.asStruct.measurementIntervalMs = eeprom_read_word(&eeprom_measurementIntervalMs);
     holdingRegisters.asStruct.sleepTimeS = 0;
 }
@@ -256,7 +271,11 @@ void main (void) {
     adcSetup();    
     sei();    
     timer1msStart(&(holdingRegisters.asStruct.measurementIntervalMs));
-   while(1) {
+
+    performMeasurement((uint16_t*) &(inputRegisters.asStruct.moisture), 
+                            (uint16_t*) &(inputRegisters.asStruct.temperature));
+
+    while(1) {
         processMeasurements((uint16_t*) &(inputRegisters.asStruct.moisture), 
                             (uint16_t*) &(inputRegisters.asStruct.temperature));
         modbusGet();
