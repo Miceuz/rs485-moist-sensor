@@ -109,6 +109,10 @@ static inline bool isParityRegisterSet() {
     return 2 == modbusGetRegisterNumber();
 }
 
+static inline bool isMeasurementIntervalRegisterSet() {
+    return 3 == modbusGetRegisterNumber();
+}
+
 void saveByteAndReset(uint8_t *eeprom, uint8_t value) {
     eeprom_write_byte(eeprom, value);                    
     while(!modbusIsIdle()) {
@@ -130,6 +134,7 @@ void modbusGet(void) {
             }
             break;
             
+//            case fcPresetMultipleRegisters:
             case fcPresetSingleRegister: {
                 modbusExchangeRegisters(holdingRegisters.asArray, 5);
 
@@ -145,12 +150,9 @@ void modbusGet(void) {
                     if(isValidParity(holdingRegisters.asStruct.parity)) {
                         saveByteAndReset(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
                     }
+                } else if(isMeasurementIntervalRegisterSet()) {
+                    eeprom_write_byte(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
                 }
-            }
-            break;
-            
-            case fcPresetMultipleRegisters: {
-                modbusExchangeRegisters(holdingRegisters.asArray, 5);
             }
             break;
             
@@ -215,11 +217,17 @@ inline static bool isSleepTimeSet() {
 }
 
 inline static void saveConfig() {
-
+    eeprom_write_byte(&eeprom_address, holdingRegisters.asStruct.address);
+    eeprom_write_byte(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
+    eeprom_write_byte(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
+    eeprom_write_byte(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
 }
 
 inline static void loadConfig() {
+    holdingRegisters.asStruct.sleepTimeS = 0;
+
     temp = eeprom_read_byte(&eeprom_address);
+    
     if(isValidAddress(temp)) {
         holdingRegisters.asStruct.address = temp;
     } else {
@@ -241,7 +249,9 @@ inline static void loadConfig() {
     }
 
     holdingRegisters.asStruct.measurementIntervalMs = eeprom_read_word(&eeprom_measurementIntervalMs);
-    holdingRegisters.asStruct.sleepTimeS = 0;
+    if(65535 == holdingRegisters.asStruct.measurementIntervalMs) {
+        holdingRegisters.asStruct.measurementIntervalMs = 500;
+    }
 }
 
 inline static void  wdtDisable(){
@@ -264,16 +274,17 @@ void main (void) {
 
     loadConfig();
 
-    serialDriverEnable();
-    
     modbusSetAddress(holdingRegisters.asStruct.address);
     modbusInit(holdingRegisters.asStruct.baud, holdingRegisters.asStruct.parity);
+
     adcSetup();    
     sei();    
     timer1msStart(&(holdingRegisters.asStruct.measurementIntervalMs));
 
     performMeasurement((uint16_t*) &(inputRegisters.asStruct.moisture), 
                             (uint16_t*) &(inputRegisters.asStruct.temperature));
+
+    serialReaderEnable();
 
     while(1) {
         processMeasurements((uint16_t*) &(inputRegisters.asStruct.moisture), 
