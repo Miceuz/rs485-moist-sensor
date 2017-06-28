@@ -19,8 +19,8 @@ minimalmodbus.BAUDRATE=19200
 while True:
 	try:
 		sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS)
-		print(sensor.read_register(0, functioncode=4))
-		print(sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True))
+		print(sensor.read_register(0, functioncode=4), sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True))
 		sleep(0.1)
 	except (IOError, ValueError):
 		print("Waiting...")
+		sleep(0.3)
