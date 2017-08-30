@@ -1,0 +1,116 @@
+# Talking to RS485 soil moisture sensor from Raspberry Pi
+
+This tutorial will guide you how to get soil moisture and temperature readings from Chirp RS485 soil moisture sensor. These instructions are written with RaspberryPi in mind, but actually are valid for every python installation on Windows, Linux or OSX.
+
+## What is RS485? Modbus?
+
+RS485 is a standard defining the electrical characteristics for use in serial communications systems. It is a vary robust protocol allowing multiple devices on the same wire and long cable runs. Cable with at least 4 conductors is used to connect the sensors. You can hook up over 200 sensors on the same bus.
+
+Modbus is a proven, industry standard protocol that goes over RS485 signalling layer. Communication happens between one master and multiple slaves. Each slave has to have a unique address. Master can read and write configuration and data registers of slave. Framing and data integrity is taken care of.
+
+### USB - to - RS485 dongles
+
+To talk to the sensor you will need a dongle that allows you computer to talk and listen on the RS485 network. Luckily RS485 is so popular that there is multitude of cheap dongles to choose from on ebay. Just enter "USB RS485" into the search terms and you will get a lot to choose from. Below are some examples that work fine. For convenience, choose one that has power pins +5V and GND broken out on the connector. Also you can hack the dongle by soldering wires to such points on the board.
+
+![](img/usb-rs485-1.jpg)
+
+![](img/usb-rs485-2.jpg)
+
+![](img/usb-rs485-3.jpg)
+
+### Wiring the connections
+
+The sensor has 4 connections:
+
+ * VCC - positive power supply. Apply 5V to this pin.
+ * RS485-A - noninverting line of RS485 bus
+ * RS485-B - inverting line of RS485
+ * GND - negative power supply  
+
+## Installing required software
+
+Python environment and a minimalmodbus library is needed to communicate with the sensor.
+
+To install all the needed Pytho infrastructure, type:
+
+`sudo apt-get install python-pip
+
+To install the minimalmodbus Python library type:
+
+'sudo pip install minimalmodbus
+
+BAM! You are ready to go!
+
+## Connecting to RS485 network
+
+USB to RS485 dongle is really a simple device - it is just a simple USB to serial adapter plus a special RS485 transceiver chip. This means, that when you insert the dongle into your computer, a serial port will be created by your operating system. In Linux and OS X this happens automagically, but in Windows you will need to download the driver for the particular UST to serial chip used in your dongle. My example dongle uses CP2102.
+
+Enter this command before inserting the dongle into Raspberry Pi:
+
+`tail -f /var/log/syslog
+
+Then insert the dongle. Something like this will appear:
+
+`
+Aug 30 20:37:01 raspberrypi kernel: [  839.161890] usb 1-1.2: new full-speed USB device number 4 using dwc_otg
+Aug 30 20:37:01 raspberrypi kernel: [  839.297949] usb 1-1.2: New USB device found, idVendor=10c4, idProduct=ea60
+Aug 30 20:37:01 raspberrypi kernel: [  839.297973] usb 1-1.2: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+Aug 30 20:37:01 raspberrypi kernel: [  839.297985] usb 1-1.2: Product: CP2102 USB to UART Bridge Controller
+Aug 30 20:37:01 raspberrypi kernel: [  839.297995] usb 1-1.2: Manufacturer: Silicon Labs
+Aug 30 20:37:01 raspberrypi kernel: [  839.298005] usb 1-1.2: SerialNumber: 0001
+Aug 30 20:37:01 raspberrypi mtp-probe: checking bus 1, device 4: "/sys/devices/platform/soc/20980000.usb/usb1/1-1/1-1.2"
+Aug 30 20:37:01 raspberrypi mtp-probe: bus: 1, device: 4 was not an MTP device
+Aug 30 20:37:01 raspberrypi kernel: [  839.474676] usbcore: registered new interface driver usbserial
+Aug 30 20:37:01 raspberrypi kernel: [  839.474812] usbcore: registered new interface driver usbserial_generic
+Aug 30 20:37:01 raspberrypi kernel: [  839.474941] usbserial: USB Serial support registered for generic
+Aug 30 20:37:01 raspberrypi kernel: [  839.489032] usbcore: registered new interface driver cp210x
+Aug 30 20:37:01 raspberrypi kernel: [  839.489190] usbserial: USB Serial support registered for cp210x
+Aug 30 20:37:01 raspberrypi kernel: [  839.489396] cp210x 1-1.2:1.0: cp210x converter detected
+Aug 30 20:37:01 raspberrypi kernel: [  839.523446] usb 1-1.2: cp210x converter now attached to ttyUSB0
+Aug 30 20:38:50 raspberrypi systemd[1]: Starting Cleanup of Temporary Directories...
+Aug 30 20:38:51 raspberrypi systemd[1]: Started Cleanup of Temporary Directories.
+
+`
+
+This line is of importance here:
+
+`Aug 30 20:37:01 raspberrypi kernel: [  839.523446] usb 1-1.2: cp210x converter now attached to ttyUSB0
+
+This means, the dongle now is accessible via /dev/ttyUSB0 serial port. Now it's time to write some code.
+
+## Connecting to the sensor
+
+From the command line start the Python interpreter:
+
+`$ python
+
+You will be welcomed by Python interpreter:
+
+`
+Python 2.7.13 (default, Jan 19 2017, 14:48:08) 
+[GCC 6.3.0 20170124] on linux2
+Type "help", "copyright", "credits" or "license" for more information.
+`
+
+Type these commands:
+
+`
+>>> import minimalmodbus
+>>> sensor = minimalmodbus.Instrument('/dev/ttyUSB0', slaveaddress=1)
+>>> sensor.read_register(registeraddress=0, functioncode=4)
+229
+`
+
+BAM! You have just read moisture from the sensor! Try reading from the different register:
+
+`
+>>> sensor.read_register(registeraddress=0, functioncode=4)
+200
+`
+
+You have just got the temperature! Minimal modbus allows us treat some register values in a special way:
+
+`
+>>> sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True)
+20.0
+`
