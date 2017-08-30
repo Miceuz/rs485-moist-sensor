@@ -187,5 +187,56 @@ sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS1)
 print("reading address from holding register: ")
 print(sensor.read_register(0, functioncode=3))
 ```
+### Bonus - pushing data to the Thingspeak
+
+If you want to push your data to Thingspeak cloud, here is what you have to do.
+
+Download thingspeak Python library:
+
+```
+$sudo pip install thingspeak
+```
+Set up your streak in [thingspeak.com](https://thingspeak.com)
+Use this utility:
+
+```
+#!/usr/bin/python
+import minimalmodbus
+import serial
+from time import sleep, time
+import thingspeak
+channel = thingspeak.Channel(302723, api_key='YOUR API KEY', write_key='YOUR WRITE KEY')
+
+SENSOR_PORT = '/dev/ttyUSB0'
+
+ADDRESS = 1
+minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
+minimalmodbus.PARITY=serial.PARITY_NONE
+minimalmodbus.STOPBITS = 2
+minimalmodbus.BAUDRATE=19200
+sensor = minimalmodbus.Instrument(SENSOR_PORT, slaveaddress=ADDRESS)
+
+lastPostTimestamp = time()
+
+moisture = 0
+temperature = 0
+
+while True:
+	if time() - lastPostTimestamp > 3:
+		try:
+			moisture = sensor.read_register(0, functioncode=4)
+			temperature = sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True)
+			try:
+				channel.update({'field1':moisture, 'field2':temperature})
+			except:
+				print("#could not post")
+			print(moisture, temperature)
+		except(IOError, ValueError):
+			print("#could not read sensor")
+		
+		lastPostTimestamp = time()
+
+```
+
 
 That's it folks! Please provide me feedback and send me pull requests!
