@@ -199,7 +199,7 @@ $sudo pip install thingspeak
 Set up your streak in [thingspeak.com](https://thingspeak.com)
 Use this utility:
 
-```
+```python
 #!/usr/bin/python
 import minimalmodbus
 import serial
