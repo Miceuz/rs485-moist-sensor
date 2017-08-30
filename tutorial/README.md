@@ -113,15 +113,79 @@ Type these commands:
 
 BAM! You have just read moisture from the sensor! Try reading from the different register:
 
-```
+```python
 >>> sensor.read_register(registeraddress=0, functioncode=4)
 200
 ```
 
 You have just got the temperature! Minimal modbus allows us treat some register values in a special way:
 
-```
+```python
 >>> sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True)
 20.0
 ```
+## Addressing the sensors
+All the sensors come with the same address preprogrammed to them, it's address **1**. Before using several sensors on the same bus, you have to assign unique address to each sensor. Luckily, this is just a matter of writing the address to the special Holding register:
+```python
+>>>sensor.write_register(registeraddress=0, value=42, functioncode=6)
+```
+This will set the address of the sensor to **42**. Sensor will reset and will listen on the new address immediately.
 
+## Useful utilities
+```python
+#!/usr/bin/python
+
+"""Waits for the sensor to appear on /dev/ttyUSB0, then reads moisture and temperature from it continuously"""
+
+import minimalmodbus
+import serial
+from time import sleep
+
+ADDRESS = 1
+minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
+minimalmodbus.PARITY=serial.PARITY_NONE
+minimalmodbus.STOPBITS = 2
+minimalmodbus.BAUDRATE=19200
+
+while True:
+	try:
+		sensor = minimalmodbus.Instrument('/dev/ttyUSB0', slaveaddress=ADDRESS)
+		print(sensor.read_register(0, functioncode=4), sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True))
+		sleep(0.1)
+	except (IOError, ValueError):
+		print("Waiting...")
+		sleep(0.3)
+```
+
+Address manipulation example:
+
+```python
+#!/usr/bin/python
+
+"""Looks for sensor with ADDRESS1 and changes it's address to ADDRESS2 then changes it back to ADDRESS1""" 
+
+import minimalmodbus
+from time import sleep
+ADDRESS1 = 1
+ADDRESS2 = 2
+
+minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
+sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS1)
+print("writing new address: " + str(ADDRESS2))
+sensor.write_register(0, value=ADDRESS2, functioncode=6)
+
+sleep(0.2)
+sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS2)
+print("reading address from holding register: ")
+print(sensor.read_register(0, functioncode=3))
+
+print("writing new address: " + str(ADDRESS1))
+sensor.write_register(0, value=ADDRESS1, functioncode=6)
+
+sleep(0.2)
+sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS1)
+print("reading address from holding register: ")
+print(sensor.read_register(0, functioncode=3))
+```
+
+That's it folks! Please provide me feedback and send me pull requests!
