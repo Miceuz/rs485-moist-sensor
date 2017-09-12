@@ -190,7 +190,9 @@ bool validateFrame() {
 	} else if (isFunction(fcPresetSingleRegister)) {
 		if((dataPos - 6) < 2) {//enough data received? should be exactly 2 bytes, but we allow more, will use just the first two
 			modbusSendException(ecIllegalDataValue);
-		}
+			return false;
+		} 
+		return true;
 	} else {
 		modbusSendException(ecIllegalFunction);
 		return false;

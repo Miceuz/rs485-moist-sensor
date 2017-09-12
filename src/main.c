@@ -137,7 +137,6 @@ void modbusGet(void) {
 //            case fcPresetMultipleRegisters:
             case fcPresetSingleRegister: {
                 modbusExchangeRegisters(holdingRegisters.asArray, 5);
-
                 if(isAddressRegisterSet()){
                     if(isValidAddress(holdingRegisters.asStruct.address)) {
                         saveByteAndReset(&eeprom_address, holdingRegisters.asStruct.address);
