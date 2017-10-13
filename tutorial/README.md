@@ -29,7 +29,7 @@ The sensor has 4 connections:
 
 ## Installing required software
 
-Python environment and a minimalmodbus library is needed to communicate with the sensor.
+Python environment and a chirp_modbus library is needed to communicate with the sensor.
 
 To install all the needed Pytho infrastructure, type: 
 
@@ -37,10 +37,10 @@ To install all the needed Pytho infrastructure, type:
 sudo apt-get install python-pip
 ```
 
-To install the minimalmodbus Python library type:
+To install the chirp_modbus Python library type:
 
 ```
-sudo pip install minimalmodbus
+sudo pip install chirp_modbus
 ```
 
 BAM! You are ready to go!
@@ -105,29 +105,25 @@ Type "help", "copyright", "credits" or "license" for more information.
 Type these commands:
 
 ```python
->>> import minimalmodbus
->>> sensor = minimalmodbus.Instrument('/dev/ttyUSB0', slaveaddress=1)
->>> sensor.read_register(registeraddress=0, functioncode=4)
-229
+>>> import chirp_modbus
+>>> sensor = chirp_modbus.SoilMoistureSensor(address=1, serialport='/dev/ttyUSB0')
+>>> sensor.getMoisture()
+201
 ```
 
 BAM! You have just read moisture from the sensor! Try reading from the different register:
 
 ```python
->>> sensor.read_register(registeraddress=0, functioncode=4)
-200
-```
-
-You have just got the temperature! Minimal modbus allows us treat some register values in a special way:
-
-```python
->>> sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True)
+>>> sensor.getTemperature()
 20.0
 ```
+
+Read the [source code](https://github.com/Miceuz/rs485-moist-sensor/blob/master/utils/lib/chirp_modbus.py) of the library for more.
+
 ## Addressing the sensors
 All the sensors come with the same address preprogrammed to them, it's address **1**. Before using several sensors on the same bus, you have to assign unique address to each sensor. Luckily, this is just a matter of writing the address to the special Holding register:
 ```python
->>>sensor.write_register(registeraddress=0, value=42, functioncode=6)
+>>>sensor.setAddress(42)
 ```
 This will set the address of the sensor to **42**. Sensor will reset and will listen on the new address immediately.
 
@@ -137,20 +133,18 @@ This will set the address of the sensor to **42**. Sensor will reset and will li
 
 """Waits for the sensor to appear on /dev/ttyUSB0, then reads moisture and temperature from it continuously"""
 
-import minimalmodbus
-import serial
+import chirp_modbus
 from time import sleep
 
 ADDRESS = 1
-minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
-minimalmodbus.PARITY=serial.PARITY_NONE
-minimalmodbus.STOPBITS = 2
-minimalmodbus.BAUDRATE=19200
 
 while True:
 	try:
-		sensor = minimalmodbus.Instrument('/dev/ttyUSB0', slaveaddress=ADDRESS)
-		print(sensor.read_register(0, functioncode=4), sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True))
+		sensor = chirp_modbus.SoilMoistureSensor(address=ADDRESS, serialport='/dev/ttyUSB0')
+		# sensor.sensor.debug=True
+		print("FW version= " + str(hex(sensor.getFwVersion())) +
+			  " Moisture=" + str(sensor.getMoisture()) +
+			  " Temperature=" + str(sensor.getTemperature()))
 		sleep(0.1)
 	except (IOError, ValueError):
 		print("Waiting...")
@@ -164,29 +158,36 @@ Address manipulation example:
 
 """Looks for sensor with ADDRESS1 and changes it's address to ADDRESS2 then changes it back to ADDRESS1""" 
 
-import minimalmodbus
+import chirp_modbus
 from time import sleep
 ADDRESS1 = 1
 ADDRESS2 = 2
 
-minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
-sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS1)
+sensor = chirp_modbus.SoilMoistureSensor(address=ADDRESS1, '/dev/ttyUSB0')
+
 print("writing new address: " + str(ADDRESS2))
-sensor.write_register(0, value=ADDRESS2, functioncode=6)
+sensor.setAddress(ADDRESS2)
 
 sleep(0.2)
-sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS2)
 print("reading address from holding register: ")
-print(sensor.read_register(0, functioncode=3))
+print(sensor.getAddress())
 
 print("writing new address: " + str(ADDRESS1))
-sensor.write_register(0, value=ADDRESS1, functioncode=6)
+sensor.setAddress(ADDRESS1)
 
 sleep(0.2)
-sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS1)
+
 print("reading address from holding register: ")
-print(sensor.read_register(0, functioncode=3))
+print(sensor.getAddress())
 ```
+
+Bus discovery example:
+```python
+import chirp_modbus
+
+found = SoilMoistureSensor.scanBus(verbose=True, findOne=True, startAddress = 1, endAddress = 247)
+```
+
 ### Bonus - pushing data to the Thingspeak
 
 If you want to push your data to Thingspeak cloud, here is what you have to do.
@@ -201,20 +202,16 @@ Use this utility:
 
 ```python
 #!/usr/bin/python
-import minimalmodbus
-import serial
+import chirp_modbus
 from time import sleep, time
 import thingspeak
+
 channel = thingspeak.Channel(302723, api_key='YOUR API KEY', write_key='YOUR WRITE KEY')
 
 SENSOR_PORT = '/dev/ttyUSB0'
-
 ADDRESS = 1
-minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
-minimalmodbus.PARITY=serial.PARITY_NONE
-minimalmodbus.STOPBITS = 2
-minimalmodbus.BAUDRATE=19200
-sensor = minimalmodbus.Instrument(SENSOR_PORT, slaveaddress=ADDRESS)
+
+sensor = chirp_modbus.SoilMoistureSensor(ADDRESS, SENSOR_PORT)
 
 lastPostTimestamp = time()
 
@@ -224,8 +221,8 @@ temperature = 0
 while True:
 	if time() - lastPostTimestamp > 3:
 		try:
-			moisture = sensor.read_register(0, functioncode=4)
-			temperature = sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True)
+			moisture = sensor.getMoisture()
+			temperature = sensor.getTemperature()
 			try:
 				channel.update({'field1':moisture, 'field2':temperature})
 			except:

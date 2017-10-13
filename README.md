@@ -18,6 +18,17 @@ The main features:
  * Suitable for long cable runs
  * Uses industrial Modbus protocol
 
+# Python library
+
+A python library is available via pip. Type `pip install chirp_modbus` to install it. Check the [source code](https://github.com/Miceuz/rs485-moist-sensor/blob/master/utils/lib/chirp_modbus.py) for documentation. Usage example:
+```python
+from chirp_modbus import SoilMoistureSensor
+s = SoilMoistureSensor(1, '/dev/ttyUSB5')
+print(s.getTemperature())
+print(s.getMoisture())
+```
+
+
 # Technical data
 
  * Supply voltage - 5V
