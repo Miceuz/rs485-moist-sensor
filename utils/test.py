@@ -18,7 +18,9 @@ while True:
 		sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS)
 		# sensor.debug=True
 		# sensor.precalculate_read_size=False
-		print(sensor.read_register(0, functioncode=4), sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True))
+		print("FW version= " + str(hex(sensor.read_register(2, functioncode=4))) +
+			  " Moisture=" + str(sensor.read_register(0, functioncode=4)) +
+			  " Temperature=" + str(sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True)))
 		sleep(0.1)
 	except (IOError, ValueError):
 		print("Waiting...")

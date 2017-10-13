@@ -1,17 +1,14 @@
 /**
+Version history:
 
-Stuff to implement:
- X RS485 direction control by using two separate receiver and transmitter control lines
- X Provide moisture in input register
- X Provide temperature in input register 
- X Address control via holding register
- X Baud rate control via holding register
- * Update timeout counters when updating baud 
- X Save config to eeprom and reset
- X Deep sleep mode via holding register
- X Excitation control via holding register
- X Add a timekeeper millisecond timer  
+0x1000 -- initial
+0x1001 -- bugfix, allow address change
+0x1100 -- new feature - watchdog timer always on, fix sleep times, add firmware version input register 
+
+Versioning number structure:
+0x[major version, 4bit][feature update, 4bit][bugfix 8bit]
 */
+#define FIRMWARE_VERSION 0x1100
 
 #include <stdbool.h>
 #include <inttypes.h>
@@ -28,10 +25,11 @@ Stuff to implement:
 #define READER_ENABLE PA0
 
 volatile union{
-            uint16_t asArray[2];
+            uint16_t asArray[3];
             struct {
                 uint16_t moisture;
                 int16_t temperature;
+                uint16_t fwVersion;
             } asStruct;
         } inputRegisters;
 
@@ -130,7 +128,7 @@ void modbusGet(void) {
             break;
             
             case fcReadInputRegisters: {
-                modbusExchangeRegisters(inputRegisters.asArray, 2);
+                modbusExchangeRegisters(inputRegisters.asArray, 3);
             }
             break;
             
@@ -265,6 +263,7 @@ inline static void saveConfig() {
 }
 
 inline static void loadConfig() {
+    inputRegisters.asStruct.fwVersion = FIRMWARE_VERSION;
     holdingRegisters.asStruct.sleepTimeS = 0;
 
     temp = eeprom_read_byte(&eeprom_address);
