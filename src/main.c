@@ -150,7 +150,7 @@ void modbusGet(void) {
                         saveByteAndReset(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
                     }
                 } else if(isMeasurementIntervalRegisterSet()) {
-                    eeprom_write_byte(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
+                    eeprom_write_word(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
                 }
             }
             break;
@@ -163,7 +163,61 @@ void modbusGet(void) {
     }
 }
 
-uint16_t sleepTimes = 0;
+volatile uint16_t sleepTimes = 0;
+volatile uint16_t secondsToSleep = 0;
+
+#define WDT_TIMEOUT_8S      0b00100001
+#define WDT_TIMEOUT_4S      0b00100000
+#define WDT_TIMEOUT_2S      0b00000111
+#define WDT_TIMEOUT_1S      0b00000110
+#define WDT_TIMEOUT_05S     0b00000101
+#define WDT_TIMEOUT_025S    0b00000100
+#define WDT_TIMEOUT_0125S   0b00000011
+#define WDT_TIMEOUT_64MS    0b00000010
+#define WDT_TIMEOUT_32MS    0b00000001
+#define WDT_TIMEOUT_16MS    0b00000000
+#define WDT_TIMEOUT_DEFAULT WDT_TIMEOUT_0125S
+
+void wdtSetTimeout(uint8_t timeout) {
+    timeout |= _BV(WDE);
+    CCP = 0xD8;
+    WDTCSR = timeout;
+}
+
+inline static void wdtInterruptEnable(){
+    WDTCSR |= _BV(WDIE);
+}
+
+inline static void wdtInterruptDisable(){
+    WDTCSR &= ~_BV(WDIE);
+}
+
+ISR(WDT_vect) {
+   //Just wakeup. For some reason enabling WDT interrupt inside of ISR does not work, so we do it in sleep loop 
+}
+
+static inline void sleepSetup() {
+    if(secondsToSleep >= 8) {
+        wdtSetTimeout(WDT_TIMEOUT_8S);
+        sleepTimes = secondsToSleep / 8;
+        secondsToSleep = secondsToSleep - sleepTimes * 8;
+
+    } else if(secondsToSleep >= 4) {
+        wdtSetTimeout(WDT_TIMEOUT_4S);
+        sleepTimes = 1;
+        secondsToSleep = secondsToSleep - 4;
+    
+    } else if(secondsToSleep >= 2) {
+        wdtSetTimeout(WDT_TIMEOUT_2S);
+        sleepTimes = 1;
+        secondsToSleep = 1;//secondsToSleep - 2;
+    
+    } else if(secondsToSleep == 1) {
+        wdtSetTimeout(WDT_TIMEOUT_1S);
+        sleepTimes = 1;
+        secondsToSleep = secondsToSleep - 1;
+    }
+}
 
 void sleep() {
     measurementReset();
@@ -173,42 +227,30 @@ void sleep() {
     serialReaderDisable();
     UCSR0B &= ~_BV(TXEN0);
 
-    if(holdingRegisters.asStruct.sleepTimeS >=8) {
-        WDTCSR = 0b00100001;
-        sleepTimes = holdingRegisters.asStruct.sleepTimeS / 8;
-    } else if(holdingRegisters.asStruct.sleepTimeS >=4) {
-        WDTCSR = 0b00100000;
-        sleepTimes = holdingRegisters.asStruct.sleepTimeS / 4;
-    } else if(holdingRegisters.asStruct.sleepTimeS >=2) {
-        WDTCSR = 0b00000111;
-        sleepTimes = holdingRegisters.asStruct.sleepTimeS / 2;
-    } else if(holdingRegisters.asStruct.sleepTimeS >=1) {
-        WDTCSR = 0b00000110;
-        sleepTimes = 1;
-    }
-
+    secondsToSleep = holdingRegisters.asStruct.sleepTimeS;
     holdingRegisters.asStruct.sleepTimeS = 0;
+
+    sleepSetup();
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
 
-    WDTCSR |= _BV(WDIE);
-    while(sleepTimes > 0) {
-        sleep_mode();
+    asm("WDR");
+    while((sleepTimes > 0) || (secondsToSleep > 0)) {
+        while(sleepTimes > 0) {
+            wdtInterruptEnable();
+            sleep_mode();
+            sleepTimes--;
+        }
+        sleepSetup();
     }
 
-    temp = WDTCSR & ~_BV(WDE) & ~_BV(WDIE);
-    CCP = 0xD8;
-    WDTCSR = temp;
+    wdtInterruptDisable();
+    wdtSetTimeout(WDT_TIMEOUT_DEFAULT);
 
     performMeasurement((uint16_t*) &(inputRegisters.asStruct.moisture), 
                             (uint16_t*) &(inputRegisters.asStruct.temperature));
 
     UCSR0B |= _BV(TXEN0);
     serialReaderEnable();
-}
-
-ISR(WDT_vect) {
-    WDTCSR |= _BV(WDIE);
-    sleepTimes--;
 }
 
 inline static bool isSleepTimeSet() {
@@ -219,7 +261,7 @@ inline static void saveConfig() {
     eeprom_write_byte(&eeprom_address, holdingRegisters.asStruct.address);
     eeprom_write_byte(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
     eeprom_write_byte(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
-    eeprom_write_byte(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
+    eeprom_write_word(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
 }
 
 inline static void loadConfig() {
@@ -253,23 +295,8 @@ inline static void loadConfig() {
     }
 }
 
-inline static void  wdtDisable(){
-    MCUSR = 0;
-    temp = WDTCSR & ~_BV(WDE) & ~_BV(WDIE);
-    CCP = 0xD8;
-    WDTCSR = temp;
-}
-
-inline static void  wdtEnable(){
-    MCUSR = 0;
-    temp = WDTCSR | _BV(WDE) | _BV(WDP0) | _BV(WDP1) | _BV(WDP2);
-    CCP = 0xD8;
-    WDTCSR = temp;
-}
-
 void main (void) {
-//    wdtDisable();
-    wdtEnable();
+    wdtSetTimeout(WDT_TIMEOUT_DEFAULT);
 
     DDRA |= _BV(DRIVER_ENABLE);
     DDRA |= _BV(READER_ENABLE);
@@ -298,7 +325,7 @@ void main (void) {
                             (uint16_t*) &(inputRegisters.asStruct.temperature));
         modbusGet();
 
-        if(isSleepTimeSet() && modbusIsIdle()) {
+        if(isSleepTimeSet() && modbusIsIdle() && modbusIsTXComplete()) {
             sleep();
         }
         asm("WDR");

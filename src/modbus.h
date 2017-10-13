@@ -61,6 +61,7 @@ uint8_t modbusGetRegisterNumber(void);
 uint8_t modbusGetFunctionCode(void);
 void modbusIsBroadcastFrame();
 bool modbusIsIdle();
+bool modbusIsTXComplete();
 uint8_t modbusExchangeRegisters(volatile uint16_t *ptrToInArray, uint16_t size);
 void modbusSendException(unsigned char exceptionCode);
 void modbusSetAddress(uint8_t address);

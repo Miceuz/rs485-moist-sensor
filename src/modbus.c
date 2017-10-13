@@ -275,6 +275,8 @@ ISR(TIMER2_COMPB_vect) {
 	}
 }
 
+volatile txComplete = 0;
+
 /* @brief: Sends a response.
 *
 *         Arguments: - packtop: Position of the last byte containing data.
@@ -293,6 +295,7 @@ void modbusSendMessage(unsigned char packtop) {
 	busState = STATE_EMISSION;
 	frameAvailable = false;
 	UART_CONTROL|=(1<<UART_UDRIE);
+	txComplete = 0;
 }
 
 ISR(UART_TRANSMIT_INTERRUPT) {
@@ -306,8 +309,12 @@ ISR(UART_TRANSMIT_INTERRUPT) {
 ISR(UART_TRANSMIT_COMPLETE_INTERRUPT) {
 	transceiver_rxen();
 	start35Timer();
+	txComplete = 1;
 }
 
+bool modbusIsTXComplete() {
+	return txComplete;
+}
 /*calculated for 16MHz crystal on attiny441 */
 uint16_t bauds[] = {1665, 832, 415, 207, 103, 51, 33, 16};
 uint8_t parityModes[] = {0, 2, 3};
