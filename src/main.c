@@ -260,8 +260,16 @@ inline static void  wdtDisable(){
     WDTCSR = temp;
 }
 
+inline static void  wdtEnable(){
+    MCUSR = 0;
+    temp = WDTCSR | _BV(WDE) | _BV(WDP0) | _BV(WDP1) | _BV(WDP2);
+    CCP = 0xD8;
+    WDTCSR = temp;
+}
+
 void main (void) {
-    wdtDisable();
+//    wdtDisable();
+    wdtEnable();
 
     DDRA |= _BV(DRIVER_ENABLE);
     DDRA |= _BV(READER_ENABLE);
@@ -293,5 +301,6 @@ void main (void) {
         if(isSleepTimeSet() && modbusIsIdle()) {
             sleep();
         }
+        asm("WDR");
     }
 }
