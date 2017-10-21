@@ -47,20 +47,20 @@ Serial communication parameters as baud rate, parity and address can be updated 
 
 ### Input (read only) registers
 
-Register number | Size (bytes) | Description
-----------------|------------- |-------------
-       0        |      2       | Soil moisture. Unsigned
-       1        |      2       | Temperature. Signed. In tenths of degrees Celsius. I.e. 220 means 22.0C
+|Register number | Size (bytes) | Description |
+|----------------|------------- |-------------|
+|       0        |      2       | Soil moisture. Unsigned |
+|       1        |      2       | Temperature. Signed. In tenths of degrees Celsius. I.e. 220 means 22.0C |
 
 ### Holding (read/write) registers
 
-Register number | Size (bytes) | Valid values | Default value | Description
-----------------|--------------|------------- |---------------|-------------
-        0       |       2      |  [1 - 247]   |      1        | Modbus address
-        1       |       2      |  [0 - 7]     |      4        | Baud rate
-        2       |       2      |  [0 - 2]     |      0        | Parity **Note: most cheap ebay USB to RS485 dongles don't support parity properly!** 
-        3       |       2      |  [1 - 65535] |     500       | Measurement interval in milliseconds
-        4       |       2      |  [1 - 65535] |      0        | Time to sleep in seconds. Write to this register to put the sensor to sleep.
+|Register number | Size (bytes) | Valid values | Default value | Description |
+|----------------|--------------|------------- |---------------|-------------|
+|        0       |       2      |  [1 - 247]   |      1        | Modbus address |
+|        1       |       2      |  [0 - 7]     |      4        | Baud rate |
+|        2       |       2      |  [0 - 2]     |      0        | Parity **Note: most cheap ebay USB to RS485 dongles don't support parity properly!** |
+|        3       |       2      |  [1 - 65535] |     500       | Measurement interval in milliseconds |
+|        4       |       2      |  [1 - 65535] |      0        | Time to sleep in seconds. Write to this register to put the sensor to sleep. |
 
 #### Supported baudrates
 
