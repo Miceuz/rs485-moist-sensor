@@ -142,8 +142,7 @@ while True:
 	try:
 		sensor = chirp_modbus.SoilMoistureSensor(address=ADDRESS, serialport='/dev/ttyUSB0')
 		# sensor.sensor.debug=True
-		print("FW version= " + str(hex(sensor.getFwVersion())) +
-			  " Moisture=" + str(sensor.getMoisture()) +
+		print(" Moisture=" + str(sensor.getMoisture()) +
 			  " Temperature=" + str(sensor.getTemperature()))
 		sleep(0.1)
 	except (IOError, ValueError):
