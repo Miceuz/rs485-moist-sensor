@@ -49,7 +49,7 @@ if found:
 		sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=i)
 		print("Setting new baudrate: " + str(baudrates[BAUDRATE2]))
 		sensor.write_register(1, value=BAUDRATE2, functioncode=6)
-
+		minimalmodbus._SERIALPORTS={}
 		minimalmodbus.BAUDRATE=baudrates[BAUDRATE2]
 
 		sleep(0.2)

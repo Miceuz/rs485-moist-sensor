@@ -20,7 +20,10 @@ sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=ADDRESS)
 print("Reading from sensor...", sensor.read_register(0, functioncode=4))
 print("Going to sleep for " + str(SLEEPTIME) + " seconds")
 
-sensor.write_register(4, value=SLEEPTIME, functioncode=6)
+try:
+	sensor.write_register(4, value=SLEEPTIME, functioncode=6)
+except ValueError:
+	pass 
 sleep(0.01)
 
 sleptSeconds = 0
