@@ -9,16 +9,16 @@
 
 DEVICE  = attiny441
 F_CPU   = 16000000	# in Hz
-FUSE_L  = 0xAE# see below for fuse values for particular devices
+FUSE_L  = 0xAF# see below for fuse values for particular devices
 FUSE_H  = 0xDF
 FUSE_E  = 0xED
 AVRDUDE = avrdude -c usbasp -P usb -p $(DEVICE) -e # edit this line for your programmer
 
-CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=0  -Os 
+CFLAGS  = -Iusbdrv -I. -DDEBUG_LEVEL=0  -Os -std=gnu99
 CFLAGS += -ffunction-sections -fdata-sections -save-temps 
 LDFLAGS += -Wl,--gc-sections,--relax
 
-OBJECTS = main.o thermistor.o
+OBJECTS = main.o thermistor.o modbus.o measurement.o
 
 COMPILE = avr-gcc-4.9.2 -DF_CPU=$(F_CPU) $(CFLAGS) $(LDFLAGS) -mmcu=$(DEVICE)  
 
@@ -43,12 +43,12 @@ fuse:
 
 # rule for uploading firmware:
 flash: main.hex
-	$(AVRDUDE) -U flash:w:main.hex:i #-B 20.92 
+	$(AVRDUDE) -U flash:w:main.hex:i -U eeprom:w:main.eep:i #-B 20.92 
 sflash: main.hex
 	$(AVRDUDE) -U flash:w:main.hex:i -B 20.92
 # rule for deleting dependent files (those which can be built by Make):
 clean:
-	rm -f main.hex main.lst main.obj main.cof main.list main.map main.eep.hex main.elf *.o main.s
+	rm -f main.hex main.lst main.obj main.cof main.list main.map main.eep.hex main.elf *.o main.s *.i *.s
 
 # Generic rule for compiling C files:
 .c.o:
@@ -76,6 +76,7 @@ main.elf: $(OBJECTS)	# usbdrv dependency only needed because we copy it
 main.hex: main.elf
 	rm -f main.hex main.eep.hex
 	avr-objcopy -j .text -j .data -O ihex main.elf main.hex
+	avr-objcopy -j .eeprom --set-section-flags=.eeprom="alloc,load" --change-section-lma .eeprom=0 -O ihex main.elf main.eep
 	avr-size main.hex
 
 # debugging targets:

@@ -1,160 +1,332 @@
+/**
+Version history:
+
+0x1000 -- initial
+0x1001 -- bugfix, allow address change
+0x1100 -- new feature - watchdog timer always on, fix sleep times, add firmware version input register 
+
+Versioning number structure:
+0x[major version, 4bit][feature update, 4bit][bugfix 8bit]
+*/
+#define FIRMWARE_VERSION 0x1100
+
+#include <stdbool.h>
 #include <inttypes.h>
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <util/delay.h>
 #include <stdio.h>
 #include <avr/sleep.h>
-#include "thermistor.h"
-
+#include "modbus.h"
+#include <avr/eeprom.h>
+#include <measurement.h>
 
 #define DRIVER_ENABLE PA4
 #define READER_ENABLE PA0
 
-#define CHANNEL_THERMISTOR 3
-#define CHANNEL_CAPACITANCE_HIGH 5
-#define CHANNEL_CAPACITANCE_LOW 7
-#define CHANNEL_CHIP_TEMP 0b00001100
+volatile union{
+            uint16_t asArray[3];
+            struct {
+                uint16_t moisture;
+                int16_t temperature;
+                uint16_t fwVersion;
+            } asStruct;
+        } inputRegisters;
 
-#define POWER_TO_DIVIDERS PA6
+volatile union{
+            uint16_t asArray[5];
+            struct {
+                uint16_t address;
+                uint16_t baud;
+                uint16_t parity;
+                uint16_t measurementIntervalMs;
+                uint16_t sleepTimeS;
+            } asStruct;
+        } holdingRegisters;
 
-inline static void serialSetup() {
-    #define BAUD 9600
-    #include <util/setbaud.h>
-    DDRA |= _BV(DRIVER_ENABLE);
-    DDRA |= _BV(READER_ENABLE);
-    UBRR0H = UBRRH_VALUE;
-    UBRR0L = UBRRL_VALUE;
-    UCSR0B = _BV(RXEN0) | _BV(TXEN0);
-    UCSR0C = _BV(UCSZ00) | _BV(UCSZ01);
-}
+uint8_t eeprom_address EEMEM = 1;
+uint8_t eeprom_baudIdx EEMEM = 4;
+uint8_t eeprom_parityIdx EEMEM = 0;
+uint16_t eeprom_measurementIntervalMs EEMEM = 500;
 
-inline static void serialDriverEnable() {
-    PORTA |= _BV(DRIVER_ENABLE);
+uint8_t temp = 0;
+
+inline static void serialReaderDisable() {
+    PORTA |= _BV(READER_ENABLE);
 }
 
 inline static void serialDriverDisable() {
     PORTA &= ~_BV(DRIVER_ENABLE);
 }
 
+inline static void serialDriverEnable() {
+    serialReaderDisable();
+    PORTA |= _BV(DRIVER_ENABLE);
+}
+
 inline static void serialReaderEnable() {
+    serialDriverDisable();
     PORTA &= ~_BV(READER_ENABLE);
 }
 
-inline static void serialReaderDisable() {
-    PORTA |= _BV(READER_ENABLE);
+
+void transceiver_txen(void) {
+    serialDriverEnable();
 }
 
-void uart_putchar(char c, FILE *stream) {
-    if (c == '\n') {
-        uart_putchar('\r', stream);
+void transceiver_rxen(void) {
+    serialReaderEnable();
+}
+
+inline static void reset() {
+    WDTCSR = _BV(WDE);//reset in 16ms
+    while(1);
+} 
+
+inline static bool isValidAddress(uint8_t address) {
+    return address > 0 && address < 248;
+}
+
+inline static bool isValidBaud(uint8_t baudIdx) {
+    return baudIdx >=0 && baudIdx < 8;
+}
+
+inline static bool isValidParity(uint8_t parityIdx) {
+    return parityIdx >=0 && parityIdx < 3;
+}
+
+static inline bool isAddressRegisterSet() {
+    return 0 == modbusGetRegisterNumber();
+}
+
+static inline bool isBaudRegisterSet() {
+    return 1 == modbusGetRegisterNumber();
+}
+
+static inline bool isParityRegisterSet() {
+    return 2 == modbusGetRegisterNumber();
+}
+
+static inline bool isMeasurementIntervalRegisterSet() {
+    return 3 == modbusGetRegisterNumber();
+}
+
+void saveByteAndReset(uint8_t *eeprom, uint8_t value) {
+    eeprom_write_byte(eeprom, value);                    
+    while(!modbusIsIdle()) {
+        //wait
     }
-    loop_until_bit_is_set(UCSR0A, UDRE0);
-    UDR0 = c;
+    reset();
 }
 
-FILE uart_output = FDEV_SETUP_STREAM(uart_putchar, NULL, _FDEV_SETUP_WRITE);
-
-void powerToDividersEnable() {
-    PORTA |= _BV(POWER_TO_DIVIDERS);
+void modbusGet(void) {
+    if (modbusIsFrameAvailable()) {
+        switch(modbusGetFunctionCode()) {
+            case fcReadHoldingRegisters: {
+                modbusExchangeRegisters(holdingRegisters.asArray, 5);
+            }
+            break;
+            
+            case fcReadInputRegisters: {
+                modbusExchangeRegisters(inputRegisters.asArray, 3);
+            }
+            break;
+            
+//            case fcPresetMultipleRegisters:
+            case fcPresetSingleRegister: {
+                modbusExchangeRegisters(holdingRegisters.asArray, 5);
+                if(isAddressRegisterSet()){
+                    if(isValidAddress(holdingRegisters.asStruct.address)) {
+                        saveByteAndReset(&eeprom_address, holdingRegisters.asStruct.address);
+                    }
+                } else if (isBaudRegisterSet()) {
+                    if(isValidBaud(holdingRegisters.asStruct.baud)) {
+                        saveByteAndReset(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
+                    }
+                } else if (isParityRegisterSet()) {
+                    if(isValidParity(holdingRegisters.asStruct.parity)) {
+                        saveByteAndReset(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
+                    }
+                } else if(isMeasurementIntervalRegisterSet()) {
+                    eeprom_write_word(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
+                }
+            }
+            break;
+            
+            default: {
+                modbusSendException(ecIllegalFunction);
+            }
+            break;
+        }
+    }
 }
 
-void powerToDividersDisable() {
-    PORTA &= ~_BV(POWER_TO_DIVIDERS);
+volatile uint16_t sleepTimes = 0;
+volatile uint16_t secondsToSleep = 0;
+
+#define WDT_TIMEOUT_8S      0b00100001
+#define WDT_TIMEOUT_4S      0b00100000
+#define WDT_TIMEOUT_2S      0b00000111
+#define WDT_TIMEOUT_1S      0b00000110
+#define WDT_TIMEOUT_05S     0b00000101
+#define WDT_TIMEOUT_025S    0b00000100
+#define WDT_TIMEOUT_0125S   0b00000011
+#define WDT_TIMEOUT_64MS    0b00000010
+#define WDT_TIMEOUT_32MS    0b00000001
+#define WDT_TIMEOUT_16MS    0b00000000
+#define WDT_TIMEOUT_DEFAULT WDT_TIMEOUT_0125S
+
+void wdtSetTimeout(uint8_t timeout) {
+    timeout |= _BV(WDE);
+    CCP = 0xD8;
+    WDTCSR = timeout;
 }
 
-static inline void adcSetup() {
-    DDRA |= _BV(POWER_TO_DIVIDERS);
-
-    ADCSRA = _BV(ADEN) | _BV(ADPS2) | _BV(ADPS0);
-    ADMUXB = 0;
-    DIDR0 |= _BV(ADC7D) | _BV(ADC5D) | _BV(ADC3D);// | _BV(ADC0D) | _BV(ADC1D) | _BV(ADC2D) | _BV(ADC4D) | _BV(ADC6D) | _BV(ADC8D);
+inline static void wdtInterruptEnable(){
+    WDTCSR |= _BV(WDIE);
 }
 
-uint16_t adcReadChannel(uint8_t channel) {
-    ADMUXA = channel;
-    ADCSRA |= _BV(ADSC);
-    loop_until_bit_is_clear(ADCSRA, ADSC);
-    uint16_t ret = ADC;
-    return ret;
+inline static void wdtInterruptDisable(){
+    WDTCSR &= ~_BV(WDIE);
 }
 
-uint8_t temp = 0;
+ISR(WDT_vect) {
+   //Just wakeup. For some reason enabling WDT interrupt inside of ISR does not work, so we do it in sleep loop 
+}
+
+static inline void sleepSetup() {
+    if(secondsToSleep >= 8) {
+        wdtSetTimeout(WDT_TIMEOUT_8S);
+        sleepTimes = secondsToSleep / 8;
+        secondsToSleep = secondsToSleep - sleepTimes * 8;
+
+    } else if(secondsToSleep >= 4) {
+        wdtSetTimeout(WDT_TIMEOUT_4S);
+        sleepTimes = 1;
+        secondsToSleep = secondsToSleep - 4;
+    
+    } else if(secondsToSleep >= 2) {
+        wdtSetTimeout(WDT_TIMEOUT_2S);
+        sleepTimes = 1;
+        secondsToSleep = 1;//secondsToSleep - 2;
+    
+    } else if(secondsToSleep == 1) {
+        wdtSetTimeout(WDT_TIMEOUT_1S);
+        sleepTimes = 1;
+        secondsToSleep = secondsToSleep - 1;
+    }
+}
 
 void sleep() {
-    CCP = 0xD8;
-    CLKCR = 0b01001110;
-
+    measurementReset();
     PORTA = 0;
 
-    DDRB |= _BV(PB2);
-    PORTB &= ~_BV(PB2);
-
     serialDriverDisable();
-    serialReaderEnable();
+    serialReaderDisable();
     UCSR0B &= ~_BV(TXEN0);
 
-    ADCSRA &= ~_BV(ADEN);
+    secondsToSleep = holdingRegisters.asStruct.sleepTimeS;
+    holdingRegisters.asStruct.sleepTimeS = 0;
 
-    ACSR0A = _BV(ACD0); //disable comparators
-    ACSR1A = _BV(ACD1);
-    
+    sleepSetup();
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
-    sleep_mode();
+
+    asm("WDR");
+    while((sleepTimes > 0) || (secondsToSleep > 0)) {
+        while(sleepTimes > 0) {
+            wdtInterruptEnable();
+            sleep_mode();
+            sleepTimes--;
+        }
+        sleepSetup();
+    }
+
+    wdtInterruptDisable();
+    wdtSetTimeout(WDT_TIMEOUT_DEFAULT);
+
+    performMeasurement((uint16_t*) &(inputRegisters.asStruct.moisture), 
+                            (uint16_t*) &(inputRegisters.asStruct.temperature));
+
+    UCSR0B |= _BV(TXEN0);
+    serialReaderEnable();
 }
 
+inline static bool isSleepTimeSet() {
+    return 0 != holdingRegisters.asStruct.sleepTimeS;
+}
 
+inline static void saveConfig() {
+    eeprom_write_byte(&eeprom_address, holdingRegisters.asStruct.address);
+    eeprom_write_byte(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
+    eeprom_write_byte(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
+    eeprom_write_word(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
+}
 
-char buff[10];
+inline static void loadConfig() {
+    inputRegisters.asStruct.fwVersion = FIRMWARE_VERSION;
+    holdingRegisters.asStruct.sleepTimeS = 0;
 
-int main (void) {
-
-    stdout = &uart_output;
-    serialSetup();
+    temp = eeprom_read_byte(&eeprom_address);
     
-    serialDriverEnable();
-    serialReaderDisable();
+    if(isValidAddress(temp)) {
+        holdingRegisters.asStruct.address = temp;
+    } else {
+        holdingRegisters.asStruct.address = 1;
+    }
+
+    temp = eeprom_read_byte(&eeprom_baudIdx);
+    if(temp >= 0 && temp < 8) {
+        holdingRegisters.asStruct.baud = temp;
+    } else {
+        holdingRegisters.asStruct.baud = 4;
+    }
+
+    temp = eeprom_read_byte(&eeprom_parityIdx);
+    if(temp >=0 && temp < 3) {
+        holdingRegisters.asStruct.parity = temp;
+    } else {
+        holdingRegisters.asStruct.parity = 0;
+    }
+
+    holdingRegisters.asStruct.measurementIntervalMs = eeprom_read_word(&eeprom_measurementIntervalMs);
+    if(65535 == holdingRegisters.asStruct.measurementIntervalMs) {
+        holdingRegisters.asStruct.measurementIntervalMs = 500;
+    }
+}
+
+void main (void) {
+    wdtSetTimeout(WDT_TIMEOUT_DEFAULT);
+
+    DDRA |= _BV(DRIVER_ENABLE);
+    DDRA |= _BV(READER_ENABLE);
+
+    // DDRA |= _BV(PA3);
+    // PINA |= _BV(PA3);
+    // _delay_ms(100);
+    // PINA |= _BV(PA3);
+
+    loadConfig();
+
+    modbusSetAddress(holdingRegisters.asStruct.address);
+    modbusInit(holdingRegisters.asStruct.baud, holdingRegisters.asStruct.parity);
 
     adcSetup();    
+    sei();    
+    timer1msStart(&(holdingRegisters.asStruct.measurementIntervalMs));
 
-   sleep();
-    
+    performMeasurement((uint16_t*) &(inputRegisters.asStruct.moisture), 
+                            (uint16_t*) &(inputRegisters.asStruct.temperature));
+
+    serialReaderEnable();
+
     while(1) {
-        _delay_ms(100);
-        powerToDividersEnable();
-        _delay_ms(2);
-        uint16_t thermistor = adcReadChannel(CHANNEL_THERMISTOR);
+        processMeasurements((uint16_t*) &(inputRegisters.asStruct.moisture), 
+                            (uint16_t*) &(inputRegisters.asStruct.temperature));
+        modbusGet();
 
-        fputs("Thermistor = ", stdout);
-        
-        itoa(thermistor, buff, 10);
-        fputs(buff, stdout);
-        fputs(" -> ", stdout);
-        
-        int tt = thermistorLsbToTemperature(thermistor);
-        itoa((int)tt, buff, 10);
-        fputs(buff, stdout);
-        
-        uint16_t caph = adcReadChannel(CHANNEL_CAPACITANCE_HIGH);
-        uint16_t capl = adcReadChannel(CHANNEL_CAPACITANCE_LOW);
-
-        fputs(" Capacitance = ", stdout);
-        itoa(caph, buff, 10);
-        fputs(buff, stdout);
-        fputs(" - ", stdout);
-
-        itoa(capl, buff, 10);
-        fputs(buff, stdout);
-        fputs(" = ", stdout);
-
-        itoa(caph - capl, buff, 10);
-        fputs(buff, stdout);
-        
-        uint16_t chipTemp = adcReadChannel(CHANNEL_CHIP_TEMP);
-        fputs(" @ temp = ", stdout);
-        itoa(chipTemp, buff, 10);
-        fputs(buff, stdout);
-        puts(".");
-        powerToDividersDisable();
-
-        _delay_ms(100);
+        if(isSleepTimeSet() && modbusIsIdle() && modbusIsTXComplete()) {
+            sleep();
+        }
+        asm("WDR");
     }
 }

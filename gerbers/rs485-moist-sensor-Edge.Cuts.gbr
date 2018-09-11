@@ -1,10 +1,11 @@
-G04 #@! TF.GenerationSoftware,KiCad,Pcbnew,no-vcs-found-c20cf4a~58~ubuntu16.04.1*
-G04 #@! TF.CreationDate,2017-03-23T07:56:25+02:00*
+G04 #@! TF.GenerationSoftware,KiCad,Pcbnew,6.0.0-rc1-unknown-4a57541~66~ubuntu16.04.1*
+G04 #@! TF.CreationDate,2018-09-11T15:22:57+03:00*
 G04 #@! TF.ProjectId,rs485-moist-sensor,72733438352D6D6F6973742D73656E73,rev?*
+G04 #@! TF.SameCoordinates,Original*
 G04 #@! TF.FileFunction,Profile,NP*
 %FSLAX46Y46*%
 G04 Gerber Fmt 4.6, Leading zero omitted, Abs format (unit mm)*
-G04 Created by KiCad (PCBNEW no-vcs-found-c20cf4a~58~ubuntu16.04.1) date Thu Mar 23 07:56:25 2017*
+G04 Created by KiCad (PCBNEW 6.0.0-rc1-unknown-4a57541~66~ubuntu16.04.1) date Tue Sep 11 15:22:57 2018*
 %MOMM*%
 %LPD*%
 G01*
