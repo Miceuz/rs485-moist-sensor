@@ -1,37 +1,4 @@
-EESchema Schematic File Version 2
-LIBS:rs485-moist-sensor-rescue
-LIBS:power
-LIBS:device
-LIBS:transistors
-LIBS:conn
-LIBS:linear
-LIBS:regul
-LIBS:74xx
-LIBS:cmos4000
-LIBS:adc-dac
-LIBS:memory
-LIBS:xilinx
-LIBS:special
-LIBS:microcontrollers
-LIBS:dsp
-LIBS:microchip
-LIBS:analog_switches
-LIBS:motorola
-LIBS:texas
-LIBS:intel
-LIBS:audio
-LIBS:interface
-LIBS:digital-audio
-LIBS:philips
-LIBS:display
-LIBS:cypress
-LIBS:siliconi
-LIBS:opto
-LIBS:atmel
-LIBS:contrib
-LIBS:valves
-LIBS:mechanical
-LIBS:graphic_symbols
+EESchema Schematic File Version 4
 LIBS:rs485-moist-sensor-cache
 EELAYER 26 0
 EELAYER END
@@ -48,7 +15,7 @@ Comment3 ""
 Comment4 ""
 $EndDescr
 $Comp
-L CRYSTAL X1
+L rs485-moist-sensor-rescue:CRYSTAL-RESCUE-rs485-moist-sensor X1
 U 1 1 54D213EA
 P 4850 4200
 F 0 "X1" H 4850 4350 50  0000 C CNN
@@ -62,7 +29,7 @@ F 6 "2395958" H 4850 4200 60  0001 C CNN "Distributor"
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C2
+L rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor C2
 U 1 1 54D218DE
 P 5150 4350
 F 0 "C2" H 5200 4450 50  0000 L CNN
@@ -76,7 +43,7 @@ F 6 "2310585" H 5150 4350 60  0001 C CNN "Distributor"
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR13
+L power:GND #PWR13
 U 1 1 54D21A04
 P 4850 4500
 F 0 "#PWR13" H 4850 4250 60  0001 C CNN
@@ -87,7 +54,7 @@ F 3 "" H 4850 4500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR6
+L power:VCC #PWR6
 U 1 1 54D21DD5
 P 2800 1250
 F 0 "#PWR6" H 2800 1100 60  0001 C CNN
@@ -98,7 +65,7 @@ F 3 "" H 2800 1250 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR3
+L power:GND #PWR3
 U 1 1 54D21DE7
 P 700 4300
 F 0 "#PWR3" H 700 4050 60  0001 C CNN
@@ -109,7 +76,7 @@ F 3 "" H 700 4300 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C3
+L rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor C3
 U 1 1 54D21E5C
 P 700 3250
 F 0 "C3" H 750 3350 50  0000 L CNN
@@ -120,7 +87,7 @@ F 3 "" H 700 3250 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR2
+L power:GND #PWR2
 U 1 1 54D21F25
 P 700 3400
 F 0 "#PWR2" H 700 3150 60  0001 C CNN
@@ -131,7 +98,7 @@ F 3 "" H 700 3400 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L DIODESCH D1
+L rs485-moist-sensor-rescue:DIODESCH-RESCUE-rs485-moist-sensor D1
 U 1 1 54D21FCD
 P 9550 3800
 F 0 "D1" H 9550 3900 50  0000 C CNN
@@ -145,7 +112,7 @@ F 6 "2575121" H 9550 3800 60  0001 C CNN "Distributor"
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R4
+L rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor R4
 U 1 1 54D2209D
 P 8800 4500
 F 0 "R4" V 8880 4500 50  0000 C CNN
@@ -156,7 +123,7 @@ F 3 "" H 8800 4500 30  0000 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L R R5
+L rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor R5
 U 1 1 54D22174
 P 9750 3650
 F 0 "R5" V 9830 3650 50  0000 C CNN
@@ -167,7 +134,7 @@ F 3 "" H 9750 3650 30  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L R R8
+L rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor R8
 U 1 1 54D221C8
 P 10050 5400
 F 0 "R8" V 10130 5400 50  0000 C CNN
@@ -178,7 +145,7 @@ F 3 "" H 10050 5400 30  0000 C CNN
 	-1   0    0    1   
 $EndComp
 $Comp
-L GND #PWR21
+L power:GND #PWR21
 U 1 1 54D2221D
 P 9750 5550
 F 0 "#PWR21" H 9750 5300 60  0001 C CNN
@@ -189,7 +156,7 @@ F 3 "" H 9750 5550 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C4
+L rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor C4
 U 1 1 54D2222A
 P 9750 3950
 F 0 "C4" H 9800 4050 50  0000 L CNN
@@ -200,7 +167,7 @@ F 3 "" H 9750 3950 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR20
+L power:GND #PWR20
 U 1 1 54D222DF
 P 9750 4100
 F 0 "#PWR20" H 9750 3850 60  0001 C CNN
@@ -211,7 +178,7 @@ F 3 "" H 9750 4100 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R7
+L rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor R7
 U 1 1 54D222F8
 P 10050 3950
 F 0 "R7" V 10130 3950 50  0000 C CNN
@@ -224,7 +191,7 @@ $EndComp
 Text Label 10950 3800 2    60   ~ 0
 SENSE_LOW
 $Comp
-L C C5
+L rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor C5
 U 1 1 54D22484
 P 9750 5400
 F 0 "C5" H 9800 5500 50  0000 L CNN
@@ -235,7 +202,7 @@ F 3 "" H 9750 5400 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R6
+L rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor R6
 U 1 1 54D2252C
 P 9750 5100
 F 0 "R6" V 9830 5100 50  0000 C CNN
@@ -250,7 +217,7 @@ SENSE_HIGH/MISO
 Text Label 8950 4900 2    60   ~ 0
 SENSOR_TRACK
 $Comp
-L GND #PWR15
+L power:GND #PWR15
 U 1 1 54D22F14
 P 5200 7200
 F 0 "#PWR15" H 5200 6950 60  0001 C CNN
@@ -261,7 +228,7 @@ F 3 "" H 5200 7200 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L SP3481EN-RESCUE-rs485-moist-sensor U1
+L rs485-moist-sensor-rescue:SP3481EN-RESCUE-rs485-moist-sensor U1
 U 1 1 54DF0ADA
 P 6550 3400
 F 0 "U1" H 6250 3750 50  0000 L CNN
@@ -275,7 +242,7 @@ F 6 "2542747" H 6550 3400 60  0001 C CNN "Distributor"
 	1    0    0    -1  
 $EndComp
 $Comp
-L C C7
+L rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor C7
 U 1 1 54DF0C76
 P 6800 2500
 F 0 "C7" H 6850 2600 50  0000 L CNN
@@ -286,7 +253,7 @@ F 3 "" H 6800 2500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR18
+L power:GND #PWR18
 U 1 1 54DF0CCD
 P 6800 2650
 F 0 "#PWR18" H 6800 2400 60  0001 C CNN
@@ -297,7 +264,7 @@ F 3 "" H 6800 2650 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR16
+L power:GND #PWR16
 U 1 1 54DF15E6
 P 5950 4000
 F 0 "#PWR16" H 5950 3750 60  0001 C CNN
@@ -308,7 +275,7 @@ F 3 "" H 5950 4000 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R1
+L rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor R1
 U 1 1 54DF19BF
 P 3800 4300
 F 0 "R1" V 3880 4300 50  0000 C CNN
@@ -319,7 +286,7 @@ F 3 "" H 3800 4300 30  0000 C CNN
 	0    -1   -1   0   
 $EndComp
 $Comp
-L C C6
+L rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor C6
 U 1 1 54DF1D15
 P 3650 4450
 F 0 "C6" H 3700 4550 50  0000 L CNN
@@ -330,7 +297,7 @@ F 3 "" H 3650 4450 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR9
+L power:GND #PWR9
 U 1 1 54DF1D84
 P 3650 4600
 F 0 "#PWR9" H 3650 4350 60  0001 C CNN
@@ -353,7 +320,7 @@ SENSE_HIGH/MISO
 Text Label 3700 3800 2    60   ~ 0
 SENSE_LOW
 $Comp
-L THERMISTOR TH1
+L rs485-moist-sensor-rescue:THERMISTOR-RESCUE-rs485-moist-sensor TH1
 U 1 1 54E05F89
 P 9700 2100
 F 0 "TH1" V 9800 2150 50  0000 C CNN
@@ -367,7 +334,7 @@ F 6 "2456122" H 9700 2100 60  0001 C CNN "Distributor"
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R2
+L rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor R2
 U 1 1 54E06028
 P 9700 1700
 F 0 "R2" V 9780 1700 50  0000 C CNN
@@ -381,7 +348,7 @@ F 6 "2379939" H 9700 1700 60  0001 C CNN "Distributor"
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR19
+L power:GND #PWR19
 U 1 1 54E0608E
 P 9700 2350
 F 0 "#PWR19" H 9700 2100 60  0001 C CNN
@@ -402,20 +369,20 @@ RS485B
 Wire Wire Line
 	2800 4100 4550 4100
 Wire Wire Line
-	4550 4500 5150 4500
+	4550 4500 4850 4500
 Connection ~ 4850 4500
 Wire Wire Line
-	9750 3800 10950 3800
+	9750 3800 10050 3800
 Wire Wire Line
 	10050 4100 9750 4100
 Connection ~ 10050 3800
 Wire Wire Line
 	9750 5550 10050 5550
 Wire Wire Line
-	9750 5250 10950 5250
+	9750 5250 10050 5250
 Connection ~ 10050 5250
 Wire Wire Line
-	9350 3800 9350 5250
+	9350 3800 9350 4500
 Wire Wire Line
 	8950 4500 9350 4500
 Connection ~ 9350 4500
@@ -424,7 +391,7 @@ Wire Wire Line
 Wire Wire Line
 	6550 3000 6550 2350
 Wire Wire Line
-	5750 2350 6800 2350
+	5750 2350 6550 2350
 Wire Wire Line
 	2800 4000 5150 4000
 Wire Wire Line
@@ -454,11 +421,11 @@ Wire Wire Line
 Wire Wire Line
 	4450 3100 2800 3100
 Wire Wire Line
-	2800 3500 6150 3500
+	2800 3500 5950 3500
 Wire Wire Line
 	2800 3400 3700 3400
 $Comp
-L CONN_02X03 P1
+L rs485-moist-sensor-rescue:CONN_02X03-RESCUE-rs485-moist-sensor P1
 U 1 1 54E0D5F3
 P 4950 7100
 F 0 "P1" H 4950 7300 50  0000 C CNN
@@ -485,7 +452,7 @@ Wire Wire Line
 Text Label 4300 7200 0    60   ~ 0
 RESET
 $Comp
-L CONN_01X04 P2
+L rs485-moist-sensor-rescue:CONN_01X04-RESCUE-rs485-moist-sensor P2
 U 1 1 54E1FE0E
 P 3350 7150
 F 0 "P2" H 3350 7400 50  0000 C CNN
@@ -499,7 +466,7 @@ F 6 "?" H 3350 7150 60  0001 C CNN "Distributor"
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR7
+L power:VCC #PWR7
 U 1 1 54E1FEA9
 P 3150 7000
 F 0 "#PWR7" H 3150 6850 60  0001 C CNN
@@ -510,7 +477,7 @@ F 3 "" H 3150 7000 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L GND #PWR8
+L power:GND #PWR8
 U 1 1 54E1FECE
 P 3150 7300
 F 0 "#PWR8" H 3150 7050 60  0001 C CNN
@@ -531,7 +498,7 @@ RS485B
 Connection ~ 9750 3800
 Connection ~ 3800 1500
 $Comp
-L C C8
+L rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor C8
 U 1 1 5894656E
 P 3800 1650
 F 0 "C8" H 3850 1750 50  0000 L CNN
@@ -542,7 +509,7 @@ F 3 "" H 3800 1650 60  0000 C CNN
 	-1   0    0    -1  
 $EndComp
 $Comp
-L GND #PWR11
+L power:GND #PWR11
 U 1 1 58946682
 P 4100 1950
 F 0 "#PWR11" H 4100 1700 60  0001 C CNN
@@ -555,7 +522,7 @@ $EndComp
 Wire Wire Line
 	4100 1950 4100 1700
 $Comp
-L C C9
+L rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor C9
 U 1 1 58946780
 P 4850 1650
 F 0 "C9" H 4900 1750 50  0000 L CNN
@@ -571,7 +538,7 @@ Connection ~ 4100 1950
 Wire Wire Line
 	4850 1950 4850 1800
 $Comp
-L +3V3 #PWR12
+L power:+3V3 #PWR12
 U 1 1 5894698F
 P 4850 1350
 F 0 "#PWR12" H 2050 400 50  0001 C CNN
@@ -584,7 +551,7 @@ $EndComp
 Wire Wire Line
 	4850 1500 4850 1350
 $Comp
-L +3V3 #PWR1
+L power:+3V3 #PWR1
 U 1 1 58946A8E
 P 700 3100
 F 0 "#PWR1" H -2100 2150 50  0001 C CNN
@@ -595,7 +562,7 @@ F 3 "" H -2100 2300 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR17
+L power:+3V3 #PWR17
 U 1 1 58946C25
 P 6800 2350
 F 0 "#PWR17" H 4000 1400 50  0001 C CNN
@@ -607,7 +574,7 @@ F 3 "" H 4000 1550 60  0000 C CNN
 $EndComp
 Connection ~ 6800 2350
 $Comp
-L +3V3 #PWR14
+L power:+3V3 #PWR14
 U 1 1 589472AD
 P 5200 7000
 F 0 "#PWR14" H 2400 6050 50  0001 C CNN
@@ -618,7 +585,7 @@ F 3 "" H 2400 6200 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L +3V3 #PWR10
+L power:+3V3 #PWR10
 U 1 1 58947B36
 P 3950 4300
 F 0 "#PWR10" H 1150 3350 50  0001 C CNN
@@ -629,7 +596,7 @@ F 3 "" H 1150 3500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Q_PMOS_GSD-RESCUE-rs485-moist-sensor Q1
+L rs485-moist-sensor-rescue:Q_PMOS_GSD-RESCUE-rs485-moist-sensor Q1
 U 1 1 5894816E
 P 3150 1600
 F 0 "Q1" V 3478 1600 50  0000 C CNN
@@ -655,7 +622,7 @@ Connection ~ 3150 1950
 Wire Wire Line
 	6950 3500 7450 3500
 $Comp
-L TVS-ARRAY D4
+L rs485-moist-sensor-rescue:TVS-ARRAY-RESCUE-rs485-moist-sensor D4
 U 1 1 5895AEC2
 P 1950 1500
 F 0 "D4" H 2281 1496 50  0000 L CNN
@@ -669,7 +636,7 @@ F 6 "2317504" H 1950 1500 60  0001 C CNN "Distributor"
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	1900 1950 4850 1950
+	1900 1950 3150 1950
 Text Label 2150 750  0    60   ~ 0
 RS485A
 Text Label 2150 850  0    60   ~ 0
@@ -685,7 +652,7 @@ Wire Wire Line
 Wire Wire Line
 	3800 1800 3800 1950
 $Comp
-L ATTINY441-SSU IC1
+L rs485-moist-sensor-rescue:ATTINY441-SSU-RESCUE-rs485-moist-sensor IC1
 U 1 1 58970948
 P 1750 3700
 F 0 "IC1" H 1750 4612 40  0000 C CNN
@@ -698,12 +665,10 @@ F 6 "2396717" H 1750 3700 60  0001 C CNN "Distributor"
 	1    1750 3700
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	2800 3700 3700 3700
 Text Label 3700 3700 2    60   ~ 0
 MOSI
 $Comp
-L MCP1702 U2
+L rs485-moist-sensor-rescue:MCP1702-RESCUE-rs485-moist-sensor U2
 U 1 1 58976A14
 P 4100 1500
 F 0 "U2" H 4100 1871 50  0000 C CNN
@@ -717,7 +682,7 @@ F 6 "1331490" H 4100 1500 60  0001 C CNN "Distributor"
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR4
+L power:VCC #PWR4
 U 1 1 58971B39
 P 1700 1150
 F 0 "#PWR4" H 1700 1000 60  0001 C CNN
@@ -728,7 +693,7 @@ F 3 "" H 1700 1150 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L VCC #PWR5
+L power:VCC #PWR5
 U 1 1 58972379
 P 2150 1150
 F 0 "#PWR5" H 2150 1000 60  0001 C CNN
@@ -745,7 +710,7 @@ RX
 Text Label 3900 3100 2    60   ~ 0
 RS485_READER_ENABLE
 $Comp
-L C C1
+L rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor C1
 U 1 1 58F5EE9F
 P 4550 4350
 F 0 "C1" H 4600 4450 50  0000 L CNN
@@ -759,7 +724,7 @@ F 6 "2310585" H 4550 4350 60  0001 C CNN "Distributor"
 	1    0    0    -1  
 $EndComp
 $Comp
-L DIODESCH D2
+L rs485-moist-sensor-rescue:DIODESCH-RESCUE-rs485-moist-sensor D2
 U 1 1 58F5F0DE
 P 9550 5250
 F 0 "D2" H 9550 5350 50  0000 C CNN
@@ -773,7 +738,7 @@ F 6 "2575121" H 9550 5250 60  0001 C CNN "Distributor"
 	1    0    0    -1  
 $EndComp
 $Comp
-L R R9
+L rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor R9
 U 1 1 58FEF0D0
 P 5950 3850
 F 0 "R9" V 6030 3850 50  0000 C CNN
@@ -784,12 +749,12 @@ F 3 "" H 5950 3850 30  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4450 3600 6150 3600
+	4450 3600 5750 3600
 Wire Wire Line
 	5950 3700 5950 3500
 Connection ~ 5950 3500
 $Comp
-L R R3
+L rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor R3
 U 1 1 58FF80B2
 P 5750 2950
 F 0 "R3" V 5830 2950 50  0000 C CNN
@@ -806,14 +771,12 @@ Wire Wire Line
 	5750 3100 5750 3600
 Connection ~ 5750 3600
 Wire Wire Line
-	3650 3700 5750 3700
-Wire Wire Line
 	5750 3700 5750 4400
 Wire Wire Line
 	5750 4400 7700 4400
 Connection ~ 3650 3700
 Wire Wire Line
-	7700 1550 7700 4950
+	7700 1550 7700 3500
 Wire Wire Line
 	7700 1550 9700 1550
 Wire Wire Line
@@ -829,7 +792,7 @@ Wire Wire Line
 Connection ~ 5950 4000
 Connection ~ 9750 5250
 $Comp
-L Mounting_Hole MK1
+L rs485-moist-sensor-rescue:Mounting_Hole-RESCUE-rs485-moist-sensor MK1
 U 1 1 59477C0A
 P 1000 6400
 F 0 "MK1" H 1100 6446 50  0000 L CNN
@@ -840,7 +803,7 @@ F 3 "" H 1000 6400 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Mounting_Hole MK2
+L rs485-moist-sensor-rescue:Mounting_Hole-RESCUE-rs485-moist-sensor MK2
 U 1 1 59477C98
 P 1000 6650
 F 0 "MK2" H 1100 6696 50  0000 L CNN
@@ -851,7 +814,7 @@ F 3 "" H 1000 6650 50  0001 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L Logo_Open_Hardware_Large #LOGO1
+L rs485-moist-sensor-rescue:Logo_Open_Hardware_Large-RESCUE-rs485-moist-sensor #LOGO1
 U 1 1 594784A4
 P 1250 7350
 F 0 "#LOGO1" H 1250 7850 50  0001 C CNN
@@ -864,4 +827,30 @@ F 6 "?" H 1250 7350 60  0001 C CNN "Distributor"
 	1    1250 7350
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	4850 4500 5150 4500
+Wire Wire Line
+	10050 3800 10950 3800
+Wire Wire Line
+	10050 5250 10950 5250
+Wire Wire Line
+	9350 4500 9350 5250
+Wire Wire Line
+	4100 1950 4850 1950
+Wire Wire Line
+	3800 1950 4100 1950
+Wire Wire Line
+	3150 1950 3800 1950
+Wire Wire Line
+	5950 3500 6150 3500
+Wire Wire Line
+	6550 2350 6800 2350
+Wire Wire Line
+	5750 3600 6150 3600
+Wire Wire Line
+	7700 3500 7700 4400
+Wire Wire Line
+	7700 4400 7700 4950
+Wire Wire Line
+	2800 3700 5750 3700
 $EndSCHEMATC
