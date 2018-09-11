@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name rs485-moist-sensor-rescue)(type Legacy)(uri ${KIPRJMOD}/rs485-moist-sensor-rescue.lib)(options "")(descr ""))
+  (lib (name special)(type Legacy)(uri ${KICAD_SYMBOL_DIR}/special.lib)(options "")(descr ""))
+)
