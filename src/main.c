@@ -8,7 +8,7 @@ Version history:
 Versioning number structure:
 0x[major version, 4bit][feature update, 4bit][bugfix 8bit]
 */
-#define FIRMWARE_VERSION 0x1100
+#define FIRMWARE_VERSION 0x1101
 
 #include <stdbool.h>
 #include <inttypes.h>
@@ -44,12 +44,12 @@ volatile union{
             } asStruct;
         } holdingRegisters;
 
-uint8_t eeprom_address EEMEM = 1;
-uint8_t eeprom_baudIdx EEMEM = 4;
-uint8_t eeprom_parityIdx EEMEM = 0;
+uint16_t eeprom_address EEMEM = 1;
+uint16_t eeprom_baudIdx EEMEM = 4;
+uint16_t eeprom_parityIdx EEMEM = 0;
 uint16_t eeprom_measurementIntervalMs EEMEM = 500;
 
-uint8_t temp = 0;
+uint16_t eeAddr = 0; //renamed from temp since temp is used in measurement.c Made it seem as though temperature was being loaded from eeprom.  Made u16 to support loading measurement interval.
 
 inline static void serialReaderDisable() {
     PORTA |= _BV(READER_ENABLE);
@@ -111,12 +111,12 @@ static inline bool isMeasurementIntervalRegisterSet() {
     return 3 == modbusGetRegisterNumber();
 }
 
-void saveByteAndReset(uint8_t *eeprom, uint8_t value) {
-    eeprom_write_byte(eeprom, value);                    
-    while(!modbusIsIdle()) {
-        //wait
-    }
-    reset();
+void saveWordAndReset(uint16_t *eeprom, uint16_t value) {
+	eeprom_write_word(eeprom, value);
+	while(!modbusIsIdle()) {
+		//wait
+	}
+	reset();
 }
 
 void modbusGet(void) {
@@ -137,18 +137,18 @@ void modbusGet(void) {
                 modbusExchangeRegisters(holdingRegisters.asArray, 5);
                 if(isAddressRegisterSet()){
                     if(isValidAddress(holdingRegisters.asStruct.address)) {
-                        saveByteAndReset(&eeprom_address, holdingRegisters.asStruct.address);
+                        saveWordAndReset(&eeprom_address, holdingRegisters.asStruct.address);
                     }
                 } else if (isBaudRegisterSet()) {
                     if(isValidBaud(holdingRegisters.asStruct.baud)) {
-                        saveByteAndReset(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
+                        saveWordAndReset(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
                     }
                 } else if (isParityRegisterSet()) {
                     if(isValidParity(holdingRegisters.asStruct.parity)) {
-                        saveByteAndReset(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
+                        saveWordAndReset(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
                     }
                 } else if(isMeasurementIntervalRegisterSet()) {
-                    eeprom_write_word(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
+                    saveWordAndReset(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
                 }
             }
             break;
@@ -245,7 +245,7 @@ void sleep() {
     wdtSetTimeout(WDT_TIMEOUT_DEFAULT);
 
     performMeasurement((uint16_t*) &(inputRegisters.asStruct.moisture), 
-                            (uint16_t*) &(inputRegisters.asStruct.temperature));
+                            (int16_t*) &(inputRegisters.asStruct.temperature));
 
     UCSR0B |= _BV(TXEN0);
     serialReaderEnable();
@@ -256,42 +256,44 @@ inline static bool isSleepTimeSet() {
 }
 
 inline static void saveConfig() {
-    eeprom_write_byte(&eeprom_address, holdingRegisters.asStruct.address);
-    eeprom_write_byte(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
-    eeprom_write_byte(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
-    eeprom_write_word(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
+	eeprom_write_word(&eeprom_address, holdingRegisters.asStruct.address);
+	eeprom_write_word(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
+	eeprom_write_word(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
+	eeprom_write_word(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
 }
 
 inline static void loadConfig() {
-    inputRegisters.asStruct.fwVersion = FIRMWARE_VERSION;
-    holdingRegisters.asStruct.sleepTimeS = 0;
+	inputRegisters.asStruct.fwVersion = FIRMWARE_VERSION;
+	holdingRegisters.asStruct.sleepTimes = 0;
 
-    temp = eeprom_read_byte(&eeprom_address);
-    
-    if(isValidAddress(temp)) {
-        holdingRegisters.asStruct.address = temp;
-    } else {
-        holdingRegisters.asStruct.address = 1;
-    }
+	eeAddr = eeprom_read_word(&eeprom_address);
+	
+	if(isValidAddress(eeAddr)) { //set to eeprom stored address or set to one if false returned
+		holdingRegisters.asStruct.address = eeAddr;
+		} else {
+		holdingRegisters.asStruct.address = 1;  // load default value if it's totally borked.
+	}
 
-    temp = eeprom_read_byte(&eeprom_baudIdx);
-    if(temp >= 0 && temp < 8) {
-        holdingRegisters.asStruct.baud = temp;
-    } else {
-        holdingRegisters.asStruct.baud = 4;
-    }
+	eeAddr = eeprom_read_word(&eeprom_baudIdx);
+	if(eeAddr >= 0 && eeAddr < 8) { //set to eeprom stored baud rate between 0 and 7 or set to 4 if out of bounds
+		holdingRegisters.asStruct.baud = eeAddr;
+		} else {
+		holdingRegisters.asStruct.baud = 4;  // load default value if it's totally borked.
+	}
 
-    temp = eeprom_read_byte(&eeprom_parityIdx);
-    if(temp >=0 && temp < 3) {
-        holdingRegisters.asStruct.parity = temp;
-    } else {
-        holdingRegisters.asStruct.parity = 0;
-    }
+	eeAddr = eeprom_read_word(&eeprom_parityIdx);
+	if(eeAddr >=0 && eeAddr < 3) { //set to eeprom stored parity between 0 and 2 or set to 0 if out of bounds
+		holdingRegisters.asStruct.parity = eeAddr;
+		} else {
+		holdingRegisters.asStruct.parity = 0;  // load default value if it's totally borked.
+	}
 
-    holdingRegisters.asStruct.measurementIntervalMs = eeprom_read_word(&eeprom_measurementIntervalMs);
-    if(65535 == holdingRegisters.asStruct.measurementIntervalMs) {
-        holdingRegisters.asStruct.measurementIntervalMs = 500;
-    }
+	eeAddr = eeprom_read_word(&eeprom_measurementIntervalMs);
+	if (eeAddr >=0 && eeAddr <= 65535) {	// if less than or equal to 655355 and greater or equal to zero, load value from eeprom
+		holdingRegisters.asStruct.measurementIntervalMs = eeAddr;
+		} else {
+		holdingRegisters.asStruct.measurementIntervalMs = 500;	// load default value if it's totally borked.
+	}
 }
 
 void main (void) {
@@ -315,13 +317,13 @@ void main (void) {
     timer1msStart(&(holdingRegisters.asStruct.measurementIntervalMs));
 
     performMeasurement((uint16_t*) &(inputRegisters.asStruct.moisture), 
-                            (uint16_t*) &(inputRegisters.asStruct.temperature));
+                            (int16_t*) &(inputRegisters.asStruct.temperature));
 
     serialReaderEnable();
 
     while(1) {
         processMeasurements((uint16_t*) &(inputRegisters.asStruct.moisture), 
-                            (uint16_t*) &(inputRegisters.asStruct.temperature));
+                            (int16_t*) &(inputRegisters.asStruct.temperature));
         modbusGet();
 
         if(isSleepTimeSet() && modbusIsIdle() && modbusIsTXComplete()) {
