@@ -51,6 +51,7 @@ Serial communication parameters as baud rate, parity and address can be updated 
 |----------------|------------- |-------------|
 |       0        |      2       | Soil moisture. Unsigned |
 |       1        |      2       | Temperature. Signed. In tenths of degrees Celsius. I.e. 220 means 22.0C |
+|       2        |      2       | Firmware version. [major version, 4bit][feature update, 4bit][bugfix 8bit]. Current is 1100|
 
 ### Holding (read/write) registers
 
