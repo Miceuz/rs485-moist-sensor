@@ -112,10 +112,12 @@ static inline bool isMeasurementIntervalRegisterSet() {
 }
 
 void saveWordAndReset(uint16_t *eeprom, uint16_t value) {
+	cli();
 	eeprom_write_word(eeprom, value);
 	while(!modbusIsIdle()) {
 		//wait
 	}
+	sei();
 	reset();
 }
 
@@ -256,10 +258,12 @@ inline static bool isSleepTimeSet() {
 }
 
 inline static void saveConfig() {
+	cli();
 	eeprom_write_word(&eeprom_address, holdingRegisters.asStruct.address);
 	eeprom_write_word(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
 	eeprom_write_word(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
 	eeprom_write_word(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
+	sei();
 }
 
 inline static void loadConfig() {
@@ -296,7 +300,7 @@ inline static void loadConfig() {
 	}
 }
 
-void main (void) {
+int main (void) {
     wdtSetTimeout(WDT_TIMEOUT_DEFAULT);
 
     DDRA |= _BV(DRIVER_ENABLE);
