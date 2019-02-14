@@ -78,9 +78,12 @@ void transceiver_rxen(void) {
     serialReaderEnable();
 }
 
-inline static void reset() {
-    WDTCSR = _BV(WDE);//reset in 16ms
-    while(1);
+inline static void reset() {  // WDE is a write protected register.   Configuration Change Protection signature needs to be set to 0xD8 for this to be written to.  Reset function call was likely non-functional.
+	cli();
+	CCP = 0xD8;
+	WDTCSR |= (1<<WDE);
+	sei();
+	while(1);
 } 
 
 inline static bool isValidAddress(uint8_t address) {
@@ -179,8 +182,8 @@ volatile uint16_t secondsToSleep = 0;
 #define WDT_TIMEOUT_DEFAULT WDT_TIMEOUT_0125S
 
 void wdtSetTimeout(uint8_t timeout) {
+	CCP = 0xD8;
     timeout |= _BV(WDE);
-    CCP = 0xD8;
     WDTCSR = timeout;
 }
 
