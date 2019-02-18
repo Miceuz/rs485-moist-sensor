@@ -40,7 +40,7 @@ volatile union{
                 uint16_t baud;
                 uint16_t parity;
                 uint16_t measurementIntervalMs;
-                uint16_t sleepTimeS;
+                uint16_t sleepTimes;
             } asStruct;
         } holdingRegisters;
 
@@ -78,23 +78,21 @@ void transceiver_rxen(void) {
     serialReaderEnable();
 }
 
-inline static void reset() {  // WDE is a write protected register.   Configuration Change Protection signature needs to be set to 0xD8 for this to be written to.  Reset function call was likely non-functional.
-	cli();
+inline static void reset() {  // WDE is a write protected register. CCP disables interrupts by default CLI,SEI uneeded. Configuration Change Protection signature needs to be set to 0xD8 for this to be written to.  Reset function call was likely non-functional.
 	CCP = 0xD8;
 	WDTCSR |= (1<<WDE);
-	sei();
 	while(1);
 } 
 
-inline static bool isValidAddress(uint8_t address) {
+inline static bool isValidAddress(uint16_t address) {
     return address > 0 && address < 248;
 }
 
-inline static bool isValidBaud(uint8_t baudIdx) {
+inline static bool isValidBaud(uint16_t baudIdx) {
     return baudIdx >=0 && baudIdx < 8;
 }
 
-inline static bool isValidParity(uint8_t parityIdx) {
+inline static bool isValidParity(uint16_t parityIdx) {
     return parityIdx >=0 && parityIdx < 3;
 }
 
@@ -164,6 +162,7 @@ void modbusGet(void) {
             break;
         }
     }
+	modbusSendException(ecNegativeAcknowledge); //	Slave cannot perform the programming functions. Master should request diagnostic or error information from slave
 }
 
 volatile uint16_t sleepTimes = 0;
@@ -257,7 +256,7 @@ void sleep() {
 }
 
 inline static bool isSleepTimeSet() {
-    return 0 != holdingRegisters.asStruct.sleepTimeS;
+    return 0 != holdingRegisters.asStruct.sleepTimes;
 }
 
 inline static void saveConfig() {
