@@ -8,3 +8,5 @@ $*
 *.net
 *.elf
 a.out
+*.atsln
+*.cproj
