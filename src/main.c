@@ -261,23 +261,10 @@ inline static bool isSleepTimeSet() {
 
 inline static void saveConfig() {
 	cli();
-	eeAddr = eeprom_read_word(&eeprom_address);
-	if (eeAddr != holdingRegisters.asStruct.address) { //compare eeprom val to current value if differ then write
-		eeprom_write_word(&eeprom_address, holdingRegisters.asStruct.address);
-	}
-	
-	eeAddr = eeprom_read_word(&eeprom_baudIdx);
-	if (eeAddr != holdingRegisters.asStruct.baud) { //compare eeprom val to current value if differ then write
-		eeprom_write_word(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
-	}
-	eeAddr = eeprom_read_word(&eeprom_parityIdx);
-	if (eeAddr != holdingRegisters.asStruct.parity) { //compare eeprom val to current value if differ then write
-		eeprom_write_word(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
-	}
-	eeAddr = eeprom_read_word(&eeprom_measurementIntervalMs);
-	if (eeAddr != holdingRegisters.asStruct.measurementIntervalMs) { //compare eeprom val to current value if differ then write
-		eeprom_write_word(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
-	}
+	eeprom_update_word(&eeprom_address, holdingRegisters.asStruct.address);
+	eeprom_update_word(&eeprom_baudIdx, holdingRegisters.asStruct.baud);
+	eeprom_update_word(&eeprom_parityIdx, holdingRegisters.asStruct.parity);
+	eeprom_update_word(&eeprom_measurementIntervalMs, holdingRegisters.asStruct.measurementIntervalMs);
 	sei();
 }
 
