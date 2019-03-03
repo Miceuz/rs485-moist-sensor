@@ -74,12 +74,12 @@ class SoilMoistureSensor:
 	def setMeasurementInterval(self, interval):
 		if interval <= 0 or interval > 2**16-1:
 			raise ValueError("Interval has to be [1..65535")
-		self.sensor.write_register(2, value=interval, functioncode=6)
+		self.sensor.write_register(3, value=interval, functioncode=6)
 
 	def sleep(self, seconds):
 		if seconds <= 0 or seconds > 2**16-1:
 			raise ValueError("Sleep time has to be in [1..65535]")
-		self.sensor.write_register(3, value=seconds, functioncode=6)
+		self.sensor.write_register(4, value=seconds, functioncode=6)
 	
 	@staticmethod
 	def scanBus(startAddress = 1, endAddress = 247, verbose=False, findOne=False):
