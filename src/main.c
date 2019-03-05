@@ -162,7 +162,6 @@ void modbusGet(void) {
             break;
         }
     }
-	modbusSendException(ecNegativeAcknowledge); //	Slave cannot perform the programming functions. Master should request diagnostic or error information from slave
 }
 
 volatile uint16_t sleepTimes = 0;
