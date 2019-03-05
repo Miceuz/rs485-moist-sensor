@@ -40,7 +40,7 @@ volatile union{
                 uint16_t baud;
                 uint16_t parity;
                 uint16_t measurementIntervalMs;
-                uint16_t sleepTimes;
+                uint16_t sleepTimeSec;
             } asStruct;
         } holdingRegisters;
 
@@ -229,8 +229,8 @@ void sleep() {
     serialReaderDisable();
     UCSR0B &= ~_BV(TXEN0);
 
-    secondsToSleep = holdingRegisters.asStruct.sleepTimeS;
-    holdingRegisters.asStruct.sleepTimeS = 0;
+    secondsToSleep = holdingRegisters.asStruct.sleepTimeSec;
+    holdingRegisters.asStruct.sleepTimeSec = 0;
 
     sleepSetup();
     set_sleep_mode(SLEEP_MODE_PWR_DOWN);
@@ -256,7 +256,7 @@ void sleep() {
 }
 
 inline static bool isSleepTimeSet() {
-    return 0 != holdingRegisters.asStruct.sleepTimes;
+    return 0 != holdingRegisters.asStruct.sleepTimeSec;
 }
 
 inline static void saveConfig() {
@@ -270,7 +270,7 @@ inline static void saveConfig() {
 
 inline static void loadConfig() {
 	inputRegisters.asStruct.fwVersion = FIRMWARE_VERSION;
-	holdingRegisters.asStruct.sleepTimes = 0;
+	holdingRegisters.asStruct.sleepTimeSec = 0;
 
 	eeAddr = eeprom_read_word(&eeprom_address);
 	
