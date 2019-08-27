@@ -162,7 +162,7 @@ from time import sleep
 ADDRESS1 = 1
 ADDRESS2 = 2
 
-sensor = chirp_modbus.SoilMoistureSensor(address=ADDRESS1, '/dev/ttyUSB0')
+sensor = chirp_modbus.SoilMoistureSensor(address=ADDRESS1, serialport='/dev/ttyUSB0')
 
 print("writing new address: " + str(ADDRESS2))
 sensor.setAddress(ADDRESS2)
@@ -210,7 +210,7 @@ channel = thingspeak.Channel(302723, api_key='YOUR API KEY', write_key='YOUR WRI
 SENSOR_PORT = '/dev/ttyUSB0'
 ADDRESS = 1
 
-sensor = chirp_modbus.SoilMoistureSensor(ADDRESS, SENSOR_PORT)
+sensor = chirp_modbus.SoilMoistureSensor(address=ADDRESS, serialport=SENSOR_PORT)
 
 lastPostTimestamp = time()
 
