@@ -3,6 +3,7 @@ import serial
 
 class SoilMoistureSensor:
 
+	VERSION = '1.0.1'
 	DEFAULT_BAUDRATE = 19200
 	DEFAULT_PARITY = serial.PARITY_NONE
 	DEFAULT_STOPBITS = 2
@@ -82,7 +83,7 @@ class SoilMoistureSensor:
 		self.sensor.write_register(4, value=seconds, functioncode=6)
 	
 	@staticmethod
-	def scanBus(startAddress = 1, endAddress = 247, verbose=False, findOne=False):
+	def scanBus(serialport, startAddress = 1, endAddress = 247, verbose=False, findOne=False, serialbaudrate=DEFAULT_BAUDRATE, serialparity=DEFAULT_PARITY, serialstopbits=DEFAULT_STOPBITS):
 		addresses=[]
 		if verbose:
 			print("Scanning bus from " +str(startAddress) + " to " + str(endAddress))
@@ -90,7 +91,11 @@ class SoilMoistureSensor:
 			try:
 				if verbose:
 					print('Trying address: ' + str(i))
-				sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=i)
+				minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
+				minimalmodbus.PARITY=serial.PARITY_NONE
+				minimalmodbus.STOPBITS = serialstopbits
+				minimalmodbus.BAUDRATE = serialbaudrate
+				sensor = minimalmodbus.Instrument(serialport, slaveaddress=i)
 				addressRead = sensor.read_register(0, functioncode=3)
 				if(i == addressRead):
 					addresses.append(i)

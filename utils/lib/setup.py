@@ -5,7 +5,7 @@ except ImportError:
 
 setup(
 	name = 'chirp_modbus',
-	version = '1.0.0rc1',
+	version = '1.0.1',
 	license = 'Apache License, Version 2.0',
 	author = 'Albertas Mickenas',
 	author_email = 'mic@wemakethings.net',
