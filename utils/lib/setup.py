@@ -11,7 +11,7 @@ setup(
 	author_email = 'mic@wemakethings.net',
 	url = 'https://github.com/Miceuz/rs485-moist-sensor',
 	description = 'A wrapper library for communicatin with Modbus based Chirp soil moisture sensor',
-	install_requires = ['minimalmodbus'],
+	install_requires = ['minimalmodbus>=1.0.2'],
 	py_modules = ['chirp_modbus'],
 	keywords =['chirp', 'catnip', 'soil', 'moisture', 'sensor', 'rs485'],
 	classifiers = [

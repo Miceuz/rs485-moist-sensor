@@ -26,7 +26,7 @@ class SoilMoistureSensor:
 		return self.sensor.read_register(0, functioncode=4)
 
 	def getTemperature(self):
-		return self.sensor.read_register(1, functioncode=4, numberOfDecimals=1, signed=True)
+		return self.sensor.read_register(1, functioncode=4, number_of_decimals=1, signed=True)
 
 	def getFwVersion(self):
 		return self.sensor.read_register(2, functioncode=4)
