@@ -23,7 +23,7 @@ while True:
 		print(
 			  " Moisture=" + str(sensor.getMoisture()) +
 			  " Temperature=" + str(sensor.getTemperature()))
-		sleep(0.1)
+		sleep(1)
 	except ValueError as e:
 		print e
 		print("Waiting...")
