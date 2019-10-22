@@ -1,11 +1,11 @@
 EESchema-LIBRARY Version 2.4
 #encoding utf-8
 #
-# power:+3V3
+# power_+3V3
 #
-DEF power:+3V3 #PWR 0 0 Y Y 1 F P
+DEF power_+3V3 #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "power:+3V3" 0 140 50 H V C CNN
+F1 "power_+3V3" 0 140 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 ALIAS +3.3V
@@ -17,11 +17,11 @@ X +3V3 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# power:GND
+# power_GND
 #
-DEF power:GND #PWR 0 0 Y Y 1 F P
+DEF power_GND #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -250 50 H I C CNN
-F1 "power:GND" 0 -150 50 H V C CNN
+F1 "power_GND" 0 -150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -30,11 +30,11 @@ X GND 1 0 0 0 D 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# power:VCC
+# power_VCC
 #
-DEF power:VCC #PWR 0 0 Y Y 1 F P
+DEF power_VCC #PWR 0 0 Y Y 1 F P
 F0 "#PWR" 0 -150 50 H I C CNN
-F1 "power:VCC" 0 150 50 H V C CNN
+F1 "power_VCC" 0 150 50 H V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -44,11 +44,11 @@ X VCC 1 0 0 0 U 50 50 1 1 W N
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:ATTINY441-SSU-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_ATTINY441-SSU
 #
-DEF rs485-moist-sensor-rescue:ATTINY441-SSU-RESCUE-rs485-moist-sensor U 0 40 Y Y 1 F N
+DEF rs485-moist-sensor-rescue_ATTINY441-SSU U 0 40 Y Y 1 F N
 F0 "U" -850 750 50 H V C CNN
-F1 "rs485-moist-sensor-rescue:ATTINY441-SSU-RESCUE-rs485-moist-sensor" 700 -750 50 H V C CNN
+F1 "rs485-moist-sensor-rescue_ATTINY441-SSU" 700 -750 50 H V C CNN
 F2 "Housings_SOIC:SOIC-14_3.9x8.7mm_Pitch1.27mm" 0 -200 50 H I C CIN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -73,11 +73,11 @@ X (PCINT4/SCK/SCL/RXD1/T1/TOCC3/AIN11/ADC4)PA4 9 1050 200 150 L 40 40 1 1 B
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_C
 #
-DEF rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor C 0 10 N Y 1 F N
+DEF rs485-moist-sensor-rescue_C C 0 10 N Y 1 F N
 F0 "C" 25 100 50 H V L CNN
-F1 "rs485-moist-sensor-rescue:C-RESCUE-rs485-moist-sensor" 25 -100 50 H V L CNN
+F1 "rs485-moist-sensor-rescue_C" 25 -100 50 H V L CNN
 F2 "" 38 -150 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -91,11 +91,11 @@ X ~ 2 0 -150 110 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:CONN_01X04-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_CONN_01X04
 #
-DEF rs485-moist-sensor-rescue:CONN_01X04-RESCUE-rs485-moist-sensor J 0 40 Y N 1 F N
+DEF rs485-moist-sensor-rescue_CONN_01X04 J 0 40 Y N 1 F N
 F0 "J" 0 250 50 H V C CNN
-F1 "rs485-moist-sensor-rescue:CONN_01X04-RESCUE-rs485-moist-sensor" 100 0 50 V V C CNN
+F1 "rs485-moist-sensor-rescue_CONN_01X04" 100 0 50 V V C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -117,11 +117,11 @@ X P4 4 -200 -150 150 R 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:CONN_02X03-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_CONN_02X03
 #
-DEF rs485-moist-sensor-rescue:CONN_02X03-RESCUE-rs485-moist-sensor J 0 1 Y N 1 F N
+DEF rs485-moist-sensor-rescue_CONN_02X03 J 0 1 Y N 1 F N
 F0 "J" 0 200 50 H V C CNN
-F1 "rs485-moist-sensor-rescue:CONN_02X03-RESCUE-rs485-moist-sensor" 0 -200 50 H V C CNN
+F1 "rs485-moist-sensor-rescue_CONN_02X03" 0 -200 50 H V C CNN
 F2 "" 0 -1200 50 H I C CNN
 F3 "" 0 -1200 50 H I C CNN
 $FPLIST
@@ -148,11 +148,11 @@ X P6 6 250 -100 150 L 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:CRYSTAL-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_CRYSTAL
 #
-DEF rs485-moist-sensor-rescue:CRYSTAL-RESCUE-rs485-moist-sensor X 0 40 N N 1 F N
+DEF rs485-moist-sensor-rescue_CRYSTAL X 0 40 N N 1 F N
 F0 "X" 0 150 50 H V C CNN
-F1 "rs485-moist-sensor-rescue:CRYSTAL-RESCUE-rs485-moist-sensor" 0 -150 50 H V C CNN
+F1 "rs485-moist-sensor-rescue_CRYSTAL" 0 -150 50 H V C CNN
 F2 "" 0 0 60 H V C CNN
 F3 "" 0 0 60 H V C CNN
 DRAW
@@ -164,11 +164,11 @@ X 2 2 300 0 200 L 40 40 1 1 P
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:DIODESCH-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_DIODESCH
 #
-DEF rs485-moist-sensor-rescue:DIODESCH-RESCUE-rs485-moist-sensor D 0 40 N N 1 F N
+DEF rs485-moist-sensor-rescue_DIODESCH D 0 40 N N 1 F N
 F0 "D" 0 100 50 H V C CNN
-F1 "rs485-moist-sensor-rescue:DIODESCH-RESCUE-rs485-moist-sensor" 0 -100 50 H V C CNN
+F1 "rs485-moist-sensor-rescue_DIODESCH" 0 -100 50 H V C CNN
 F2 "" 0 0 60 H V C CNN
 F3 "" 0 0 60 H V C CNN
 $FPLIST
@@ -183,11 +183,11 @@ X K 2 200 0 150 L 40 40 1 1 P
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:Logo_Open_Hardware_Large-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_Logo_Open_Hardware_Large
 #
-DEF ~rs485-moist-sensor-rescue:Logo_Open_Hardware_Large-RESCUE-rs485-moist-sensor #LOGO 0 40 Y Y 1 F N
+DEF rs485-moist-sensor-rescue_Logo_Open_Hardware_Large #LOGO 0 40 Y Y 1 F N
 F0 "#LOGO" 0 500 50 H I C CNN
-F1 "rs485-moist-sensor-rescue:Logo_Open_Hardware_Large-RESCUE-rs485-moist-sensor" 0 -400 50 H I C CNN
+F1 "rs485-moist-sensor-rescue_Logo_Open_Hardware_Large" 0 -400 50 H I C CNN
 F2 "" 0 0 50 H I C CNN
 F3 "" 0 0 50 H I C CNN
 DRAW
@@ -195,11 +195,11 @@ P 277 1 1 0 265 -343 261 -341 250 -334 236 -325 218 -313 201 -301 187 -292 177 -
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:MCP1702-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_MCP1702
 #
-DEF rs485-moist-sensor-rescue:MCP1702-RESCUE-rs485-moist-sensor U 0 30 Y Y 1 F N
+DEF rs485-moist-sensor-rescue_MCP1702 U 0 30 Y Y 1 F N
 F0 "U" 100 -150 50 H V C CNN
-F1 "rs485-moist-sensor-rescue:MCP1702-RESCUE-rs485-moist-sensor" 0 150 50 H V C CNN
+F1 "rs485-moist-sensor-rescue_MCP1702" 0 150 50 H V C CNN
 F2 "" 0 0 60 H V C CNN
 F3 "" 0 0 60 H V C CNN
 $FPLIST
@@ -213,27 +213,11 @@ X VI 3 -300 0 100 R 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:Mounting_Hole-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_Q_PMOS_GSD-RESCUE-rs485-moist-sensor
 #
-DEF rs485-moist-sensor-rescue:Mounting_Hole-RESCUE-rs485-moist-sensor MK 0 40 Y Y 1 F N
-F0 "MK" 0 200 50 H V C CNN
-F1 "rs485-moist-sensor-rescue:Mounting_Hole-RESCUE-rs485-moist-sensor" 0 125 50 H V C CNN
-F2 "" 0 0 50 H I C CNN
-F3 "" 0 0 50 H I C CNN
-$FPLIST
- Mounting?Hole*
- Hole*
-$ENDFPLIST
-DRAW
-C 0 0 50 0 1 50 N
-ENDDRAW
-ENDDEF
-#
-# rs485-moist-sensor-rescue:Q_PMOS_GSD-RESCUE-rs485-moist-sensor
-#
-DEF rs485-moist-sensor-rescue:Q_PMOS_GSD-RESCUE-rs485-moist-sensor Q 0 0 Y N 1 F N
+DEF rs485-moist-sensor-rescue_Q_PMOS_GSD-RESCUE-rs485-moist-sensor Q 0 0 Y N 1 F N
 F0 "Q" 300 50 50 H V R CNN
-F1 "rs485-moist-sensor-rescue:Q_PMOS_GSD-RESCUE-rs485-moist-sensor" 650 -50 50 H V R CNN
+F1 "rs485-moist-sensor-rescue_Q_PMOS_GSD-RESCUE-rs485-moist-sensor" 650 -50 50 H V R CNN
 F2 "" 200 100 29 H V C CNN
 F3 "" 0 0 60 H V C CNN
 DRAW
@@ -255,11 +239,11 @@ X D 3 100 200 100 D 50 50 1 1 C
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_R
 #
-DEF rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor R 0 0 N Y 1 F N
+DEF rs485-moist-sensor-rescue_R R 0 0 N Y 1 F N
 F0 "R" 80 0 50 V V C CNN
-F1 "rs485-moist-sensor-rescue:R-RESCUE-rs485-moist-sensor" 0 0 50 V V C CNN
+F1 "rs485-moist-sensor-rescue_R" 0 0 50 V V C CNN
 F2 "" -70 0 50 V I C CNN
 F3 "" 0 0 50 H I C CNN
 $FPLIST
@@ -273,11 +257,11 @@ X ~ 2 0 -150 50 U 50 50 1 1 P
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:SP3481EN-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_SP3481EN-RESCUE-rs485-moist-sensor
 #
-DEF rs485-moist-sensor-rescue:SP3481EN-RESCUE-rs485-moist-sensor U 0 40 Y Y 1 F N
+DEF rs485-moist-sensor-rescue_SP3481EN-RESCUE-rs485-moist-sensor U 0 40 Y Y 1 F N
 F0 "U" -300 350 50 H V L CNN
-F1 "rs485-moist-sensor-rescue:SP3481EN-RESCUE-rs485-moist-sensor" 100 350 50 H V L CNN
+F1 "rs485-moist-sensor-rescue_SP3481EN-RESCUE-rs485-moist-sensor" 100 350 50 H V L CNN
 F2 "SO-8" 0 0 50 H V C CIN
 F3 "" 0 0 60 H V C CNN
 $FPLIST
@@ -296,11 +280,11 @@ X VCC 8 0 400 100 D 50 50 1 1 W
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:THERMISTOR-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_THERMISTOR
 #
-DEF rs485-moist-sensor-rescue:THERMISTOR-RESCUE-rs485-moist-sensor TH 0 0 N Y 1 F N
+DEF rs485-moist-sensor-rescue_THERMISTOR TH 0 0 N Y 1 F N
 F0 "TH" 100 50 50 V V C CNN
-F1 "rs485-moist-sensor-rescue:THERMISTOR-RESCUE-rs485-moist-sensor" -100 0 50 V V C BNN
+F1 "rs485-moist-sensor-rescue_THERMISTOR" -100 0 50 V V C BNN
 F2 "" 0 0 60 H V C CNN
 F3 "" 0 0 60 H V C CNN
 $FPLIST
@@ -317,11 +301,11 @@ X ~ 2 0 -250 100 U 60 60 1 1 P
 ENDDRAW
 ENDDEF
 #
-# rs485-moist-sensor-rescue:TVS-ARRAY-RESCUE-rs485-moist-sensor
+# rs485-moist-sensor-rescue_TVS-ARRAY
 #
-DEF rs485-moist-sensor-rescue:TVS-ARRAY-RESCUE-rs485-moist-sensor D 0 40 Y Y 1 F N
+DEF rs485-moist-sensor-rescue_TVS-ARRAY D 0 40 Y Y 1 F N
 F0 "D" -500 100 50 H V C CNN
-F1 "rs485-moist-sensor-rescue:TVS-ARRAY-RESCUE-rs485-moist-sensor" -500 -100 50 H V C CNN
+F1 "rs485-moist-sensor-rescue_TVS-ARRAY" -500 -100 50 H V C CNN
 F2 "" -200 50 60 V V C CNN
 F3 "" -200 50 60 V V C CNN
 DRAW
