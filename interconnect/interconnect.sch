@@ -1,0 +1,215 @@
+EESchema Schematic File Version 5
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title ""
+Date ""
+Rev ""
+Comp ""
+Comment1 ""
+Comment2 ""
+Comment3 ""
+Comment4 ""
+Comment5 ""
+Comment6 ""
+Comment7 ""
+Comment8 ""
+Comment9 ""
+$EndDescr
+Wire Wire Line
+	5275 5200 4625 5200
+Wire Wire Line
+	4625 5000 5575 5000
+Wire Wire Line
+	5475 4900 4625 4900
+Wire Wire Line
+	5375 5100 4625 5100
+Wire Wire Line
+	5175 5300 4625 5300
+Wire Wire Line
+	5075 5400 4625 5400
+Text Notes 4800 4900 2    50   ~ 0
+BR
+Text Notes 4800 5000 2    50   ~ 0
+BRW
+$Comp
+L Connector:RJ45 J2
+U 1 1 5E263AF8
+P 4225 5300
+F 0 "J2" H 4282 5966 50  0000 C CNN
+F 1 "RJ45" H 4282 5875 50  0000 C CNN
+F 2 "Connector_RJ:RJ45_Amphenol_54602-x08_Horizontal" V 4225 5325 50  0001 C CNN
+F 3 "~" V 4225 5325 50  0001 C CNN
+	1    4225 5300
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4850 5600 4625 5600
+Wire Wire Line
+	4900 5500 4625 5500
+Wire Wire Line
+	4850 4225 4850 5600
+Wire Wire Line
+	5075 4025 5075 5400
+Wire Wire Line
+	5175 3925 5175 5300
+Wire Wire Line
+	5275 3825 5275 5200
+Wire Wire Line
+	5575 5000 5575 4225
+Wire Wire Line
+	5475 4900 5475 4125
+Wire Wire Line
+	4900 4125 4900 5500
+Connection ~ 5075 4025
+Connection ~ 4975 4025
+Wire Wire Line
+	4625 4025 4975 4025
+Wire Wire Line
+	4625 4125 4900 4125
+Wire Wire Line
+	4625 3925 4900 3925
+Connection ~ 4900 3925
+Wire Wire Line
+	4975 3825 4975 4025
+$Comp
+L power:GND #PWR0103
+U 1 1 5E2AFA2D
+P 5425 3075
+F 0 "#PWR0103" H 5425 2825 50  0001 C CNN
+F 1 "GND" H 5430 2902 50  0000 C CNN
+F 2 "" H 5425 3075 50  0001 C CNN
+F 3 "" H 5425 3075 50  0001 C CNN
+	1    5425 3075
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4625 4225 4850 4225
+Text Notes 4825 3725 2    50   ~ 0
+O
+Text Notes 4825 3825 2    50   ~ 0
+BW
+$Comp
+L Connector:RJ45 J1
+U 1 1 5E25C684
+P 4225 3925
+F 0 "J1" H 4282 4591 50  0000 C CNN
+F 1 "RJ45" H 4282 4500 50  0000 C CNN
+F 2 "Connector_RJ:RJ45_Amphenol_54602-x08_Horizontal" V 4225 3950 50  0001 C CNN
+F 3 "~" V 4225 3950 50  0001 C CNN
+	1    4225 3925
+	1    0    0    -1  
+$EndComp
+Text Notes 4825 4225 2    50   ~ 0
+GW
+Text Notes 4825 4025 2    50   ~ 0
+OW
+Text Notes 4825 4125 2    50   ~ 0
+G
+Text Notes 4825 3925 2    50   ~ 0
+B
+Wire Wire Line
+	5375 3725 5375 5100
+Connection ~ 5375 3725
+Connection ~ 5175 3925
+Connection ~ 5275 3825
+Wire Wire Line
+	4900 3725 5375 3725
+Wire Wire Line
+	4900 3925 5175 3925
+Wire Wire Line
+	4975 3825 5275 3825
+$Comp
+L power:GND #PWR0101
+U 1 1 5E27074B
+P 4975 4025
+F 0 "#PWR0101" H 4975 3775 50  0001 C CNN
+F 1 "GND" H 4980 3852 50  0000 C CNN
+F 2 "" H 4975 4025 50  0001 C CNN
+F 3 "" H 4975 4025 50  0001 C CNN
+	1    4975 4025
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4975 4025 5075 4025
+Wire Wire Line
+	5475 4125 6600 4125
+Wire Wire Line
+	5575 4225 6600 4225
+Wire Wire Line
+	5375 3725 6600 3725
+$Comp
+L Connector:RJ45 J3
+U 1 1 5E263D70
+P 7000 3925
+F 0 "J3" H 6670 4020 50  0000 R CNN
+F 1 "RJ45" H 6670 3930 50  0000 R CNN
+F 2 "Connector_RJ:RJ45_Amphenol_54602-x08_Horizontal" V 7000 3950 50  0001 C CNN
+F 3 "~" V 7000 3950 50  0001 C CNN
+	1    7000 3925
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	4900 3725 4900 3925
+Wire Wire Line
+	4625 3725 4900 3725
+Connection ~ 4975 3825
+Wire Wire Line
+	4625 3825 4975 3825
+Wire Wire Line
+	4975 3625 4975 3825
+Connection ~ 4900 3725
+$Comp
+L power:VCC #PWR0102
+U 1 1 5E26FEF9
+P 4900 3525
+F 0 "#PWR0102" H 4900 3375 50  0001 C CNN
+F 1 "VCC" H 4915 3698 50  0000 C CNN
+F 2 "" H 4900 3525 50  0001 C CNN
+F 3 "" H 4900 3525 50  0001 C CNN
+	1    4900 3525
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4625 3625 4975 3625
+Wire Wire Line
+	4625 3525 4900 3525
+Wire Wire Line
+	4900 3525 4900 3725
+Connection ~ 4900 3525
+Connection ~ 4975 3625
+$Comp
+L power:VCC #PWR0104
+U 1 1 5E2AF981
+P 5425 2775
+F 0 "#PWR0104" H 5425 2625 50  0001 C CNN
+F 1 "VCC" H 5440 2948 50  0000 C CNN
+F 2 "" H 5425 2775 50  0001 C CNN
+F 3 "" H 5425 2775 50  0001 C CNN
+	1    5425 2775
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5075 4025 6600 4025
+Wire Wire Line
+	5175 3925 6600 3925
+Wire Wire Line
+	5275 3825 6600 3825
+Wire Wire Line
+	4900 3525 6600 3525
+Wire Wire Line
+	4975 3625 6600 3625
+$Comp
+L Device:C C1
+U 1 1 5E2AEB7D
+P 5425 2925
+F 0 "C1" H 5540 2970 50  0000 L CNN
+F 1 "C" H 5540 2880 50  0000 L CNN
+F 2 "Capacitor_SMD:C_0603_1608Metric_Pad1.05x0.95mm_HandSolder" H 5463 2775 50  0001 C CNN
+F 3 "~" H 5425 2925 50  0001 C CNN
+	1    5425 2925
+	1    0    0    -1  
+$EndComp
+$EndSCHEMATC
