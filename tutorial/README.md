@@ -31,7 +31,7 @@ The sensor has 4 connections:
 
 Python environment and a chirp_modbus library is needed to communicate with the sensor.
 
-To install all the needed Pytho infrastructure, type: 
+To install all the needed Python infrastructure, type: 
 
 ```
 sudo apt-get install python-pip
