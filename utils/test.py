@@ -28,3 +28,7 @@ while True:
 		print e
 		print("Waiting...")
 		sleep(0.3)
+	except IOError as e:
+		print e
+		print("Waiting...")
+		sleep(0.3)
