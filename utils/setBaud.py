@@ -26,12 +26,15 @@ minimalmodbus.BAUDRATE=baudrates[args.baudrate]
 
 minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
 
+print (minimalmodbus.__version__)
 
 def scanModbus():
 	for i in range(1, 248):
 		try:
 			print('Trying address: ' + str(i))
-			sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=i)
+			sensor = minimalmodbus.Instrument('/dev/ttyUSB5', slaveaddress=i, debug=True)
+			print("modbus baudrate = " + str(sensor.serial))
+			sensor.serial.baudrate = baudrates[args.baudrate]
 			addressRead = sensor.read_register(0, functioncode=3)
 			if(i == addressRead):
 				print('FOUND!')
