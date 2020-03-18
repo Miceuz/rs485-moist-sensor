@@ -3,7 +3,7 @@ import serial
 
 class SoilMoistureSensor:
 
-	VERSION = '1.0.1'
+	VERSION = '1.0.2'
 	DEFAULT_BAUDRATE = 19200
 	DEFAULT_PARITY = serial.PARITY_NONE
 	DEFAULT_STOPBITS = 2
@@ -11,15 +11,19 @@ class SoilMoistureSensor:
 	parities=[serial.PARITY_NONE, serial.PARITY_EVEN, serial.PARITY_ODD]
 
 	def __initSensor(self):
-		self.sensor = minimalmodbus.Instrument(self.serialport, slaveaddress=self.address)
+		self.sensor = minimalmodbus.Instrument(self.serialport, slaveaddress=self.address, close_port_after_each_call = True)
+
+		self.sensor.serial.parity = self.serialparity
+		self.sensor.serial.stopbits = self.serialstopbits
+		self.sensor.serial.baudrate = self.serialbaudrate
 
 	def __init__(self, address, serialport, serialbaudrate=DEFAULT_BAUDRATE, serialparity=DEFAULT_PARITY, serialstopbits=DEFAULT_STOPBITS):
-		minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
-		minimalmodbus.PARITY=serial.PARITY_NONE
-		minimalmodbus.STOPBITS = serialstopbits
-		minimalmodbus.BAUDRATE=serialbaudrate
 		self.address = address
 		self.serialport = serialport
+		self.serialbaudrate = serialbaudrate
+		self.serialparity = serialparity
+		self.serialstopbits = serialstopbits
+
 		self.__initSensor()
 
 	def getMoisture(self):
@@ -58,8 +62,8 @@ class SoilMoistureSensor:
 
 		self.sensor.write_register(1, value=baudrate, functioncode=6)
 
-		minimalmodbus._SERIALPORTS={}
-		minimalmodbus.BAUDRATE = self.baudrates[baudrate]
+		minimalmodbus._serialports={}
+		self.sensor.serial.baudrate = self.baudrates[baudrate]
 		self.__initSensor()
 
 	def setParity(self, parity):
@@ -68,8 +72,8 @@ class SoilMoistureSensor:
 
 		self.sensor.write_register(2, value=parity, functioncode=6)
 
-		minimalmodbus._SERIALPORTS={}
-		minimalmodbus.PARITY = parities[parity]		
+		minimalmodbus._serialports={}
+		self.sensor.serial.parity = parities[parity]		
 		self.__initSensor();
 
 	def setMeasurementInterval(self, interval):
@@ -91,11 +95,12 @@ class SoilMoistureSensor:
 			try:
 				if verbose:
 					print('Trying address: ' + str(i))
-				minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
-				minimalmodbus.PARITY=serial.PARITY_NONE
-				minimalmodbus.STOPBITS = serialstopbits
-				minimalmodbus.BAUDRATE = serialbaudrate
 				sensor = minimalmodbus.Instrument(serialport, slaveaddress=i)
+				sensor.close_port_after_each_call = True
+				sensor.serial.parity = serial.PARITY_NONE
+				sensor.serial.stopbits = serialstopbits
+				sensor.serial.baudrate = serialbaudrate
+
 				addressRead = sensor.read_register(0, functioncode=3)
 				if(i == addressRead):
 					addresses.append(i)
