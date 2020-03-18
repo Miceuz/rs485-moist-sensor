@@ -6,7 +6,7 @@ from time import sleep
 from chirp_modbus import SoilMoistureSensor
 import sys
 
-SERIAL_PORT = '/dev/ttyUSB6'
+SERIAL_PORT = '/dev/ttyUSB5'
 
 found = False
 while not found:

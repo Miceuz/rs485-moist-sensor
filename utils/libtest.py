@@ -1,19 +1,20 @@
 #!/usr/bin/python
 
 """Waits for the sensor to appear on /dev/ttyUSB5, then reads moisture and temperature from it continuously"""
-
+import sys
 from time import sleep
 from chirp_modbus import SoilMoistureSensor
 
-print("Looking for sensors... this might take a while")
+SERIAL_PORT = '/dev/ttyUSB5'
 
-found = SoilMoistureSensor.scanBus(verbose=True, findOne=True)
+print("Looking for sensors... this might take a while")
+found = SoilMoistureSensor.scanBus(serialport=SERIAL_PORT, verbose=True, findOne=True)
 
 if not found:
 	print("No sensors on the bus")
 	sys.exit()
 
-sensor = SoilMoistureSensor(found[0], '/dev/ttyUSB5')
+sensor = SoilMoistureSensor(found[0], SERIAL_PORT)
 
 while True:
 	try:

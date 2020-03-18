@@ -1,47 +1,21 @@
 #!/usr/bin/python -u
 from chirp_modbus import SoilMoistureSensor
-import serial
-import minimalmodbus
+import argparse
 
-SERIAL_PORT = '/dev/ttyUSB5'
-DEFAULT_BAUDRATE = 19200
-DEFAULT_PARITY = serial.PARITY_NONE
-DEFAULT_STOPBITS = 2
+parser = argparse.ArgumentParser()
+parser.add_argument('serialport', metavar='SERIAL', type=str, help='Serial port')
+parser.add_argument('--baudrate', metavar='BAUD', type=int, default=4, choices=range(0, 7), help='Current baudrate index - [1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200]')
+args = parser.parse_args()
 
-def scanBus(serialport, startAddress = 1, endAddress = 247, verbose=False, findOne=False, serialbaudrate=DEFAULT_BAUDRATE, serialparity=DEFAULT_PARITY, serialstopbits=DEFAULT_STOPBITS):
-	addresses=[]
-	if verbose:
-		print("Scanning bus from " +str(startAddress) + " to " + str(endAddress))
-	for i in range(startAddress, endAddress+1):
-		try:
-			if verbose:
-				print('Trying address: ' + str(i))
+baudrates=[1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200]
 
-			minimalmodbus.CLOSE_PORT_AFTER_EACH_CALL = True
-			minimalmodbus.PARITY=serial.PARITY_NONE
-			minimalmodbus.STOPBITS = serialstopbits
-			minimalmodbus.BAUDRATE = serialbaudrate
-			
-			sensor = minimalmodbus.Instrument(serialport, slaveaddress=i)
-			sensor.serial.baudrate = serialbaudrate
-			sensor.serial.stopbits = serialstopbits
-			sensor.close_port_after_each_call = True
+SERIAL_PORT = args.serialport
+BAUDRATE = baudrates[args.baudrate]
 
-			addressRead = sensor.read_register(0, functioncode=3)
-			if(i == addressRead):
-				addresses.append(i)
-				if verbose:
-					print('FOUND!')
-				if findOne:
-					return addresses
-		except (IOError):
-			if verbose:
-				print("nope...")
-			pass
-	return addresses
+print("Scanning bus on port " + SERIAL_PORT + " at baud rate " + str(BAUDRATE))
 
 while True:
-	found = scanBus(serialport=SERIAL_PORT, endAddress = 80, findOne=False, verbose=False, serialbaudrate=19200, serialstopbits=2)
+	found = SoilMoistureSensor.scanBus(serialport=SERIAL_PORT, endAddress = 80, findOne=False, verbose=False, serialbaudrate=BAUDRATE)
 	if found:
 		print("Found " + str(len(found)) + " sensors: " + str(found))
 
