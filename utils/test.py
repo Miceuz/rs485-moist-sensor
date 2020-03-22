@@ -30,7 +30,12 @@ while True:
 
 		print(
 			  " Moisture=" + str(sensor.getMoisture()) +
-			  " Temperature=" + str(sensor.getTemperature()))
+			  " Temperature=" + str(sensor.getTemperature()) +
+			  " Baudrate=" + str(sensor.getBaudrate()) +
+			  " Parity=" + str(sensor.getParity()) +
+			  " Interval=" + str(sensor.getMeasurementInterval()) +
+			  " FW=" + str(hex(sensor.getFwVersion()))
+		) 
 		sleep(0.3)
 	except ValueError as e:
 		print e
