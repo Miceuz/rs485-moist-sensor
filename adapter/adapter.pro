@@ -1,6 +1,6 @@
 update=Date
 version=1
-last_client=kicad
+last_client=pcbnew
 [cvpcb]
 version=1
 NetIExt=net
