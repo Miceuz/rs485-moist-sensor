@@ -1,5 +1,5 @@
 EESchema Schematic File Version 5
-EELAYER 30 0
+EELAYER 33 0
 EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
@@ -96,6 +96,8 @@ Text Notes 2950 4200 2    50   ~ 0
 BRW
 Text Notes 2950 4800 2    50   ~ 0
 GW
+Text Notes 6550 5350 2    50   ~ 0
+Cable marker:\nhttps://www.tme.eu/lt/en/details/wic3-0-9_y/wire-markers/hellermanntyton/561-03101/
 Text Label 3125 4300 2    50   ~ 0
 VCC
 Text Label 3125 4400 2    50   ~ 0
