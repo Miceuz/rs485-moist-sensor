@@ -36,12 +36,12 @@ while True:
 			  " Interval=" + str(sensor.getMeasurementInterval()) +
 			  " FW=" + str(hex(sensor.getFwVersion()))
 		) 
-		sleep(0.3)
+		# sleep(0.3)
 	except ValueError as e:
 		print e
 		print("Waiting...")
-		sleep(0.3)
+		# sleep(0.3)
 	except IOError as e:
 		print e
 		print("Waiting...")
-		sleep(0.3)
+		# sleep(0.3)
