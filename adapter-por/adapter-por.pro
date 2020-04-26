@@ -11,6 +11,12 @@ version=1
 LibDir=
 [sheetnames]
 1=00000000-0000-0000-0000-00005e85897f:
+[SchematicFrame]
+version=1
+[LibeditFrame]
+version=1
+[ModEditFrame]
+version=1
 [pcbnew]
 version=1
 PageLayoutDescrFile=
@@ -267,7 +273,3 @@ uViaDrill=0.3
 dPairWidth=0.2
 dPairGap=0.25
 dPairViaGap=0.25
-[SchematicFrame]
-version=1
-[LibeditFrame]
-version=1
