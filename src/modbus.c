@@ -275,7 +275,7 @@ ISR(TIMER2_COMPB_vect) {
 	}
 }
 
-volatile txComplete = 0;
+volatile uint8_t txComplete = 0;
 
 /* @brief: Sends a response.
 *
