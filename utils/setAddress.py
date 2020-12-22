@@ -36,7 +36,7 @@ if found:
 		print("reading address from holding register: ")
 		print(sensor.getAddress())
 	except Exception as e:
-		print e
-		print "Could not change the address. Check your connections"
+		print (e)
+		print ("Could not change the address. Check your connections")
 else:
 	print('No sensor on the bus found')
