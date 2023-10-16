@@ -38,10 +38,10 @@ while True:
 		) 
 		# sleep(0.3)
 	except ValueError as e:
-		print e
+		print (e)
 		print("Waiting...")
 		# sleep(0.3)
 	except IOError as e:
-		print e
+		print (e)
 		print("Waiting...")
 		# sleep(0.3)

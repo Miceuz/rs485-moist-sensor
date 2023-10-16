@@ -5,7 +5,7 @@ import sys
 from time import sleep
 from chirp_modbus import SoilMoistureSensor
 
-SERIAL_PORT = '/dev/ttyUSB5'
+SERIAL_PORT = '/dev/ttyUSB1'
 
 print("Looking for sensors... this might take a while")
 found = SoilMoistureSensor.scanBus(serialport=SERIAL_PORT, verbose=True, findOne=True)

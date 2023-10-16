@@ -6,7 +6,7 @@ from time import sleep
 from chirp_modbus import SoilMoistureSensor
 import sys
 
-SERIAL_PORT = '/dev/ttyUSB5'
+SERIAL_PORT = '/dev/ttyUSB1'
 
 found = False
 while not found:
@@ -21,7 +21,7 @@ program_address = 1
 
 while True:
 	print("Set address to %d? [Y]es / [n]o / [r]escan bus)" % program_address)
-	c = raw_input()
+	c = input()
 
 	if c == 'y' or c == '' or 'r' == c:
 		found = False
