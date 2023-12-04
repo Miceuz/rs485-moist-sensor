@@ -1,6 +1,8 @@
 # rs485 soil moisture sensor
 Digital (RS485 - based) soil moisture and temperature sensor 
 
+[![](https://d2ss6ovg47m0r5.cloudfront.net/badges/tindie-smalls.png)](https://www.tindie.com/products/miceuz/modbus-rs485-soil-moisture-sensor-2/)
+
 A version of [I2C soil moisture sensor](https://github.com/Miceuz/i2c-moisture-sensor) with several updates - antistatic protection, local voltage regulation and RS485 networking.
 
 ![](rs485-moist-sensor.png)
